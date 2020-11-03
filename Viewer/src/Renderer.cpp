@@ -261,19 +261,12 @@ void Renderer::Render(const Scene& scene)
 			DrawLine(point2, point1, glm::vec3(0, 0, 0));
 		}
 	}
-	glm::ivec2 center(200, 300);
-	glm::vec3 color(0, 0, 0);
-	DrawLine(glm::ivec2(100, 600),center, color);
-	DrawLine(center, glm::ivec2(400, 390), color);
-	DrawLine(glm::ivec2(190, 200),center, color);
-	DrawLine(center, glm::ivec2(350, 355), color);
-	DrawLine(center, glm::ivec2(609, 600), color);
-	DrawLine(center, glm::ivec2(400, 200), color);
-	DrawLine(center, glm::ivec2(400, 310), color);
-	DrawLine(center, glm::ivec2(230, 400), color);
-	DrawLine(center, glm::ivec2(300, 420), color);
-	DrawLine(glm::ivec2(150, 420), center,  color);
-	DrawLine(glm::ivec2(70, 200), center,  color);
+	//for (int R = 30; R < 200; R += 10) {
+	//	for (int i = 0; i <= steps; i++) {
+	//		glm::ivec2 point2 = glm::ivec2(point1.x + R * sin(angle * i), point1.y + R * cos(angle * i));
+	//		PutPixel(point2.x, point2.y, glm::vec3(0, 0, 0));
+	//	}
+	//}
 	for(int i = 0; i < viewport_width_; i++)
 	{
 		for (int j = half_height - thickness; j < half_height + thickness; j++)
@@ -281,7 +274,6 @@ void Renderer::Render(const Scene& scene)
 			PutPixel(i, j, glm::vec3(1, 1, 0));
 		}
 	}
-
 	for (int i = 0; i < viewport_height_; i++)
 	{
 		for (int j = half_width - thickness; j < half_width + thickness; j++)
