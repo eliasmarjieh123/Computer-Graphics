@@ -33,6 +33,20 @@ void Renderer::PutPixel(int i, int j, const glm::vec3& color)
 
 void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color)
 {
+	float a,c;
+	int x = p1.x, y = p1.y, e = p2.x - p1.x;
+	a = (p2.y - p1.y) / (p2.x - p1.x);
+	c = p1.y + a * p1.x;
+	while (x <= p2.x) {
+		e = 2 * (p2.y - p1.y) * x + 2 * (p2.x - p1.x) * c - 2 * (p2.x - p1.x) * y - (p2.x - p1.x);
+		if (e > 0) {
+			y++;
+			e -= 2 * (p2.x - p1.x);
+		}
+		PutPixel(x, y, color);
+		x++;
+		e += 2 * (p2.x - p1.x);
+	}
 	// TODO: Implement bresenham algorithm
 	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 }
@@ -174,7 +188,7 @@ void Renderer::Render(const Scene& scene)
 	int half_width = viewport_width_ / 2;
 	int half_height = viewport_height_ / 2;
 	int thickness = 15;
-	
+	DrawLine(glm::ivec2(8, 400), glm::ivec2(10000, 10000), glm::vec3(0, 0, 0));
 	for(int i = 0; i < viewport_width_; i++)
 	{
 		for (int j = half_height - thickness; j < half_height + thickness; j++)
