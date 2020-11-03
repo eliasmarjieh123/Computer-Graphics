@@ -4,10 +4,11 @@
 
 #include "Renderer.h"
 #include "InitShader.h"
+#include <iostream>
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 #define Z_INDEX(width,x,y) ((x)+(y)*(width))
-
+const double PI = 3.141592654;
 Renderer::Renderer(int viewport_width, int viewport_height) :
 	viewport_width_(viewport_width),
 	viewport_height_(viewport_height)
@@ -33,19 +34,79 @@ void Renderer::PutPixel(int i, int j, const glm::vec3& color)
 
 void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color)
 {
-	float a,c;
-	int x = p1.x, y = p1.y, e = p2.x - p1.x;
-	a = (p2.y - p1.y) / (p2.x - p1.x);
-	c = p1.y + a * p1.x;
-	while (x <= p2.x) {
-		e = 2 * (p2.y - p1.y) * x + 2 * (p2.x - p1.x) * c - 2 * (p2.x - p1.x) * y - (p2.x - p1.x);
-		if (e > 0) {
-			y++;
-			e -= 2 * (p2.x - p1.x);
+	float a,c, e = -(p2.x - p1.x);
+	int x = p1.x, y = p1.y;
+	//std::cout << p2.y-p1.y  <<"  "<< p2.x-p1.x<<std::endl;
+
+	a = float(float(p2.y - p1.y) / float(p2.x - p1.x));
+	//std::cout << a;
+	//std::cout << a<<std::endl;
+	if (a > 0 && a < 1) {
+			c = p1.y + a * p1.x;
+			while (x <= p2.x) {
+				//std::cout << e << std::endl;
+				//e = 2 * (p2.y - p1.y) * x + 2 * (p2.x - p1.x) * c - 2 * (p2.x - p1.x) * y - (p2.x - p1.x);
+				if (e > 0) {
+					y++;
+					e = e - 2 * (p2.x - p1.x);
+				}
+				PutPixel(x, y, color);
+				x++;
+				e = e + 2 * (p2.y - p1.y);
+			}
 		}
-		PutPixel(x, y, color);
-		x++;
-		e += 2 * (p2.x - p1.x);
+
+	else if (a >1) {
+		int temp = y;
+		y = x;
+		x = temp;
+		c = p1.x + a * p1.y;
+		while (x <= p2.y) {
+			//std::cout << e << std::endl;
+			//e = 2 * (p2.y - p1.y) * x + 2 * (p2.x - p1.x) * c - 2 * (p2.x - p1.x) * y - (p2.x - p1.x);
+			if (e > 0) {
+				y++;
+				e = e - 2 * (p2.y - p1.y);
+			}
+			PutPixel(y, x, color);
+			x++;
+			e = e + 2 * (p2.x - p1.x);
+		}
+	}
+
+	else if (a > -1 && a < 0) {
+		c = p1.y + a * p1.x;
+		while (x <= p2.x) {
+			//std::cout << e << std::endl;
+			//e = 2 * (p2.y - p1.y) * x + 2 * (p2.x - p1.x) * c - 2 * (p2.x - p1.x) * y - (p2.x - p1.x);
+			if (e > 0) {
+				y--;
+				e = e - 2 * (p2.x - p1.x);
+			}
+			PutPixel(x, y, color);
+			x++;
+			e = e + -2 * (p2.y - p1.y);
+		}
+
+	}
+
+	else {
+		int temp = y;
+		y = x;
+		x = temp;
+		c = p1.x + a * p1.y;
+		while (x >= p2.y) {
+			//std::cout << e << std::endl;
+			//e = 2 * (p2.y - p1.y) * x + 2 * (p2.x - p1.x) * c - 2 * (p2.x - p1.x) * y - (p2.x - p1.x);
+			if (e > 0) {
+				y++;
+				e = e + 2 * (p2.y - p1.y);
+			}
+			PutPixel(y, x, color);
+			x--;
+			e = e + 2 * (p2.x - p1.x);
+		}
+
 	}
 	// TODO: Implement bresenham algorithm
 	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
@@ -188,7 +249,31 @@ void Renderer::Render(const Scene& scene)
 	int half_width = viewport_width_ / 2;
 	int half_height = viewport_height_ / 2;
 	int thickness = 15;
-	DrawLine(glm::ivec2(8, 400), glm::ivec2(10000, 10000), glm::vec3(0, 0, 0));
+	int r = 100,steps=50;
+	float angle = 2.f * PI / steps;
+	glm::ivec2 point1 = glm::ivec2(400, 500);
+	for (int i = 0; i <= steps; i++) {
+		glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));
+		if (point2.x > point1.x) {
+			DrawLine(point1, point2, glm::vec3(0, 0, 0));
+		}
+		else {
+			DrawLine(point2, point1, glm::vec3(0, 0, 0));
+		}
+	}
+	glm::ivec2 center(200, 300);
+	glm::vec3 color(0, 0, 0);
+	DrawLine(glm::ivec2(100, 600),center, color);
+	DrawLine(center, glm::ivec2(400, 390), color);
+	DrawLine(glm::ivec2(190, 200),center, color);
+	DrawLine(center, glm::ivec2(350, 355), color);
+	DrawLine(center, glm::ivec2(609, 600), color);
+	DrawLine(center, glm::ivec2(400, 200), color);
+	DrawLine(center, glm::ivec2(400, 310), color);
+	DrawLine(center, glm::ivec2(230, 400), color);
+	DrawLine(center, glm::ivec2(300, 420), color);
+	DrawLine(glm::ivec2(150, 420), center,  color);
+	DrawLine(glm::ivec2(70, 200), center,  color);
 	for(int i = 0; i < viewport_width_; i++)
 	{
 		for (int j = half_height - thickness; j < half_height + thickness; j++)
