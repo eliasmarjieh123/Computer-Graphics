@@ -5,10 +5,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <nfd.h>
-
+#include <iostream>
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
+#include <string>
 #include "Renderer.h"
 #include "Scene.h"
 #include "Utils.h"
@@ -18,6 +18,7 @@
  */
 bool show_demo_window = false;
 bool show_another_window = false;
+bool show_transformations_window = false;
 glm::vec4 clear_color = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
 /**
@@ -42,7 +43,8 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
-	int windowWidth = 1280, windowHeight = 720;
+	int windowWidth = 1280, windowHeight = 720,i=0;
+	char * path= "C:\\Users\\elias\\OneDrive\\Documents\\GitHub\\computergraphics2021-eliass\\Data\\banana.obj";
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
 		return 1;
@@ -53,7 +55,6 @@ int main(int argc, char **argv)
 
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
-	
 	ImGuiIO& io = SetupDearImgui(window);
 	glfwSetScrollCallback(window, ScrollCallback);
     while (!glfwWindowShouldClose(window))
@@ -183,6 +184,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				if (result == NFD_OKAY)
 				{
 					scene.AddModel(Utils::LoadMeshModel(outPath));
+					scene.GetActiveModel().ScaleVertices();
+					scene.GetActiveModel().TranslateVertices();
 					free(outPath);
 				}
 				else if (result == NFD_CANCEL)
@@ -224,7 +227,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Another Window", &show_another_window);
-
+		ImGui::Checkbox("Transformations Window", &show_transformations_window);
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
@@ -238,6 +241,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 3. Show another simple window.
+	static float xscale = 1, yscale = 1,xtranslate = 0, ytranslate = 0,Angle=0;
 	if (show_another_window)
 	{
 		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -246,4 +250,97 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			show_another_window = false;
 		ImGui::End();
 	}
+	if (show_transformations_window)
+	{
+		ImGui::Begin("Transformations Window", &show_transformations_window);
+		if (ImGui::Button("Close Me"))
+			show_transformations_window = false;
+		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
+		{
+			if (ImGui::BeginTabItem("Scale"))
+			{
+				ImGui::SliderFloat("Scale by x", &xscale, 0.0f, 3.0f, "%.5f");
+
+				ImGui::SliderFloat("Scale by y", &yscale, 0.0f, 3.0f, "%.5f");
+				if (ImGui::Button("Scale"))
+				{
+					scene.GetActiveModel().ScaleVertices(0, xscale, yscale, 0);
+				}
+				if (ImGui::Button("Reset Model"))
+				{
+					scene.GetActiveModel().ScaleVertices(0, 1, 1, 0);
+					scene.GetActiveModel().TranslateVertices(0, 0, 0, 0);
+					scene.GetActiveModel().RotateModel(0, 2, 0);
+					scene.GetActiveModel().RotateModel(0, 1, 0);
+					scene.GetActiveModel().RotateModel(0, 0, 0);
+					xscale = 1;
+					yscale = 1;
+					xtranslate = 0;
+					ytranslate = 0;
+					Angle = 0;
+				}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Translate")){
+			ImGui::SliderFloat("Translate by x", &xtranslate, 0.0f, 500.0f, "%.0f");
+			ImGui::SliderFloat("Translate by y", &ytranslate, 0.0f, 500.0f, "%.0f");
+			if (ImGui::Button("Translate"))
+			{
+				scene.GetActiveModel().TranslateVertices(0, xtranslate, ytranslate, 0);
+			}
+			if (ImGui::Button("Reset Model"))
+			{
+				scene.GetActiveModel().ScaleVertices(0, 1, 1, 0);
+				scene.GetActiveModel().TranslateVertices(0, 0, 0, 0);
+				scene.GetActiveModel().RotateModel(0, 2, 0);
+				scene.GetActiveModel().RotateModel(0, 1, 0);
+				scene.GetActiveModel().RotateModel(0, 0, 0);
+				xscale = 1;
+				yscale = 1;
+				xtranslate = 0;
+				ytranslate = 0;
+				Angle = 0;
+			}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Rotate"))
+			{
+				ImGui::SliderFloat("Angle of Rotation", &Angle, 0.0f, 6.28319f, "%.5f");
+				if (ImGui::Button("Rotate By X axis"))
+				{
+					scene.GetActiveModel().RotateModel(0,0, Angle);
+				}
+				if (ImGui::Button("Rotate By Y axis"))
+				{
+					scene.GetActiveModel().RotateModel(0,1, Angle);
+				}
+				if (ImGui::Button("Rotate By Z axis"))
+				{
+					scene.GetActiveModel().RotateModel(0,2, Angle);
+				}
+				if (ImGui::Button("Reset Model"))
+				{
+					scene.GetActiveModel().ScaleVertices(0, 1, 1, 0);
+					scene.GetActiveModel().TranslateVertices(0, 0, 0, 0);
+					scene.GetActiveModel().RotateModel(0,2, 0);
+					scene.GetActiveModel().RotateModel(0,1, 0);
+					scene.GetActiveModel().RotateModel(0,0, 0);
+					xscale = 1;
+					yscale = 1;
+					xtranslate = 0;
+					ytranslate = 0;
+					Angle = 0;
+				}
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+	
+		ImGui::End();
+	}
 }
+
+
+
+

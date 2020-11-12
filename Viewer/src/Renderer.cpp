@@ -251,36 +251,73 @@ void Renderer::Render(const Scene& scene)
 	int thickness = 15;
 	int r = 100,steps=50;
 	float angle = 2.f * PI / steps;
-	glm::ivec2 point1 = glm::ivec2(400, 500);
-	for (int i = 0; i <= steps; i++) {
-		glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));
-		if (point2.x > point1.x) {
-			DrawLine(point1, point2, glm::vec3(0, 0, 0));
-		}
-		else {
-			DrawLine(point2, point1, glm::vec3(0, 0, 0));
+	char* path = "C:\\Users\\elias\\OneDrive\\Documents\\GitHub\\computergraphics2021-eliass\\Data\\banana.obj";
+	if (scene.GetModelCount() > 0) {
+		auto mesh = &scene.GetActiveModel();
+		for (int i = 0; i < mesh->GetFacesCount(); i++) {
+			int p1 = mesh->GetFace(i).GetVertexIndex(0);
+			int p2 = mesh->GetFace(i).GetVertexIndex(1);
+			int p3 = mesh->GetFace(i).GetVertexIndex(2);
+			glm::ivec2 point1 = glm::ivec2(mesh->GetVertex(p1-1)[0], mesh->GetVertex(p1-1)[1]);
+			glm::ivec2 point2 = glm::ivec2(mesh->GetVertex(p2-1)[0], mesh->GetVertex(p2-1)[1]);
+			glm::ivec2 point3 = glm::ivec2(mesh->GetVertex(p3-1)[0], mesh->GetVertex(p3-1)[1]);
+			if (point2.x > point1.x) {
+				DrawLine(point1, point2, glm::vec3(0, 0, 0));
+			}
+			else {
+				DrawLine(point2, point1, glm::vec3(0, 0, 0));
+			}
+			if (point3.x > point1.x) {
+				DrawLine(point1, point3, glm::vec3(0, 0, 0));
+			}
+			else {
+				DrawLine(point3, point1, glm::vec3(0, 0, 0));
+			}
+			if (point2.x > point3.x) {
+				DrawLine(point3, point2, glm::vec3(0, 0, 0));
+			}
+			else {
+				DrawLine(point2, point3, glm::vec3(0, 0, 0));
+			}
 		}
 	}
+    ///////////////////////////////this loop test Bresenham's algorithm
+	//for (int i = 0; i <= steps; i++) {
+	//	glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));
+	//	if (point2.x > point1.x) {
+	//		DrawLine(point1, point2, glm::vec3(0, 0, 0));
+	//	}
+	//	else {
+	//		DrawLine(point2, point1, glm::vec3(0, 0, 0));
+	//	}
+	//}
+
+	/////////////////////////////////this loop prints 16 circles in each other
+
 	//for (int R = 30; R < 200; R += 10) {
 	//	for (int i = 0; i <= steps; i++) {
 	//		glm::ivec2 point2 = glm::ivec2(point1.x + R * sin(angle * i), point1.y + R * cos(angle * i));
 	//		PutPixel(point2.x, point2.y, glm::vec3(0, 0, 0));
 	//	}
 	//}
-	for(int i = 0; i < viewport_width_; i++)
-	{
-		for (int j = half_height - thickness; j < half_height + thickness; j++)
-		{
-			PutPixel(i, j, glm::vec3(1, 1, 0));
-		}
-	}
-	for (int i = 0; i < viewport_height_; i++)
-	{
-		for (int j = half_width - thickness; j < half_width + thickness; j++)
-		{
-			PutPixel(j, i, glm::vec3(1, 0, 1));
-		}
-	}
+
+
+	/////////////////////////////////this two loops are for showing the cross
+
+	//for(int i = 0; i < viewport_width_; i++)
+	//{
+	//	for (int j = half_height - thickness; j < half_height + thickness; j++)
+	//	{
+	//		PutPixel(i, j, glm::vec3(1, 1, 0));
+	//	}
+	//}
+	//for (int i = 0; i < viewport_height_; i++)
+	//{
+	//	for (int j = half_width - thickness; j < half_width + thickness; j++)
+	//	{
+	//		PutPixel(j, i, glm::vec3(1, 0, 1));
+	//	}
+	//}
 }
 
 int Renderer::GetViewportWidth() const
