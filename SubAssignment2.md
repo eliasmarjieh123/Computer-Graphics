@@ -50,11 +50,12 @@ TransformedVertices\_ according to the result of m above.
 
 Phase 5:
 ========
-
+Translate in local 175 towards X, 175 towards Y, then Rotation in world with 50 degree in Y axis:
 ![Translate in local 175 towards X, 175 towards Y, then Rotation in
 world with 50 degree in Y
 axis](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/TLRW175-50.JPG)
 
+Translate in world 175 towards X, 175 towards Y, then Rotation in local with 50 degree in Y axis:
 ![Translate in world 175 towards X, 175 towards Y, then Rotation in
 local with 50 degree in Y
 axis](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/TWRL175-50.JPG)
