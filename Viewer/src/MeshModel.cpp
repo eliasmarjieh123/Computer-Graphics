@@ -8,13 +8,26 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	vertices_(vertices),
 	normals_(normals)
 {
-	lastScale[0] = 1;
-	lastScale[1] = 1;
-	lastTranslate[0] = 0;
-	lastTranslate[1] = 0;
-	latsRotationByX = 0;
-	latsRotationByY = 0;
-	latsRotationByZ = 0;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			tWorldMatrix[i][j] = 0;
+			rWorldMatrix[i][j] = 0;
+			sWorldMatrix[i][j] = 0;
+			tLocalMatrix[i][j] = 0;
+			rLocalMatrix[i][j] = 0;
+			sLocalMatrix[i][j] = 0;
+			Transformation[i][j] = 0;
+			if (i == j) {
+				tWorldMatrix[i][j] = 1;
+				rWorldMatrix[i][j] = 1;
+				sWorldMatrix[i][j] = 1;
+				tLocalMatrix[i][j] = 1;
+				rLocalMatrix[i][j] = 1;
+				sLocalMatrix[i][j] = 1;
+				Transformation[i][j] = 1;
+			}
+		}
+	}
 }
 
 MeshModel::~MeshModel()
@@ -67,149 +80,275 @@ void MeshModel::printFacesAndVertices() const
 	}
 }
 
-void MeshModel::MulMat(float TranslateMat[4][4]) {
-	glm::vec3 temp;
-	for (int i = 0; i < vertices_.size(); i++) {
-		glm::vec4 v4 = glm::vec4(vertices_[i][0], vertices_[i][1], vertices_[i][2], 1);
-		int j = 0, k = 0;
-		while (k < 4) {
+void MeshModel::MulMat(char* lw, float mat[4][4]) {
+	float mat1[4][4];
+	if (strcmp(lw, "local") == 0) {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				mat1[i][j] = rLocalMatrix[i][j];
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				mat1[i][j] = rWorldMatrix[i][j];
+			}
+		}
+	}
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
 			float sum = 0;
-			j = 0;
+			for (int k = 0; k < 4; k++) {
+				sum += mat1[i][k] * mat[k][j];
+			}
+			rLocalMatrix[i][j] = sum;
+		}
+	}
+}
+
+void MeshModel::TranslateAndScaleVertices(){
+	glm::vec3 maxs = glm::vec3(vertices_[0][0], vertices_[0][1], vertices_[0][2]);
+	glm::vec3 mins = glm::vec3(vertices_[0][0], vertices_[0][1], vertices_[0][2]);
+	for (int i = 0; i < vertices_.size(); i++) {
+		if (vertices_[i][0] < mins[0])
+			mins[0] = vertices_[i][0];
+		if (vertices_[i][1] < mins[1])
+			mins[1] = vertices_[i][1];
+		if (vertices_[i][2] < mins[2])
+			mins[2] = vertices_[i][2];
+	}
+    if (mins[0] < 0) mins[0] *= -1;
+	if (mins[1] < 0) mins[1] *= -1;
+	if (mins[2] < 0) mins[2] *= -1;
+	tLocalMatrix[0][3] = mins[0];
+	tLocalMatrix[1][3] = mins[1];
+	tLocalMatrix[2][3] = mins[2];
+	for (int i = 0; i < vertices_.size(); i++) {
+		if (vertices_[i][0] > maxs[0])
+			maxs[0] = vertices_[i][0];
+		if (vertices_[i][1] > maxs[1])
+			maxs[1] = vertices_[i][1];
+		if (vertices_[i][2] > maxs[2])
+			maxs[2] = vertices_[i][2];
+	}
+	maxs[0] = 350 / maxs[0];
+	maxs[1] = 350 / maxs[1];
+	maxs[2] = 350 / maxs[2];
+	if (maxs[0] < maxs[1])maxs[1] = maxs[0];
+	else maxs[0] = maxs[1];
+	if (maxs[2] < maxs[1])maxs[1] = maxs[2];
+	else maxs[2] = maxs[1];
+	sLocalMatrix[0][0] = maxs[0];
+	sLocalMatrix[1][1] = maxs[0];
+	sLocalMatrix[2][2] = maxs[0];
+	int i = 0, j = 0;
+	glm::vec4 temp;
+	glm::vec3 temp1;
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(vertices_[k][0], vertices_[k][1], vertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
 			while (j < 4) {
-				sum =sum+ v4[j] * TranslateMat[k][j];
+				sum = sum + temp[j] * tLocalMatrix[i][j];
 				j++;
 			}
-			if (k < 3)temp[k] = sum;
-			k++;
+			if (i < 3)temp1[i] = sum;
+			j = 0;
+			i++;
 		}
-		vertices_[i] = temp;
+        vertices_[k] = temp1;
 	}
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(vertices_[k][0], vertices_[k][1], vertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
+			while (j < 4) {
+				sum = sum + temp[j] * sLocalMatrix[i][j];
+				j++;
+			}
+			if (i < 3)temp1[i] = sum;
+			j = 0;
+			i++;
+		}
+		vertices_[k] = temp1;
+	}
+	Transformedvertices_ = vertices_;
+	sLocalMatrix[0][0] = 1;
+	sLocalMatrix[1][1] = 1;
+	sLocalMatrix[2][2] = 1;
+	tLocalMatrix[0][3] = 0;
+	tLocalMatrix[1][3] = 0;
+	tLocalMatrix[2][3] = 0;
 }
 
-void MeshModel::TranslateVertices(int first,float x,float y,float z){
-	if (first==1) {
-		glm::vec3 mins = glm::vec3(vertices_[0][0], vertices_[0][1], vertices_[0][2]);
-		for (int i = 0; i < vertices_.size(); i++) {
-			if (vertices_[i][0] < mins[0])
-				mins[0] = vertices_[i][0];
-			if (vertices_[i][1] < mins[1])
-				mins[1] = vertices_[i][1];
-			if (vertices_[i][2] < mins[2])
-				mins[2] = vertices_[i][2];
+void MeshModel::ResetModel() {
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			tWorldMatrix[i][j] = 0;
+			rWorldMatrix[i][j] = 0;
+			sWorldMatrix[i][j] = 0;
+			tLocalMatrix[i][j] = 0;
+			rLocalMatrix[i][j] = 0;
+			sLocalMatrix[i][j] = 0;
+			Transformation[i][j] =0;
+			if (i == j) {
+				tWorldMatrix[i][j] = 1;
+				rWorldMatrix[i][j] = 1;
+				sWorldMatrix[i][j] = 1;
+				tLocalMatrix[i][j] = 1;
+				rLocalMatrix[i][j] = 1;
+				sLocalMatrix[i][j] = 1;
+				Transformation[i][j] = 1;
+			}
 		}
-		if (mins[0] < 0) mins[0] *= -1;
-		if (mins[1] < 0) mins[1] *= -1;
-		if (mins[2] < 0) mins[2] *= -1;
-		float mat[4][4] = { {1,0,0,mins[0]},{0,1,0,mins[1]},{0,0,1,mins[2]},{0,0,0,1} };
-		MulMat(mat);
-		Originalfaces_ = faces_;
-		Originalnormals_ = normals_;
-		Originalvertices_ = vertices_;
 	}
-	else {
-		if (first != 2) {
-			faces_ = Originalfaces_;
-			vertices_ = Originalvertices_;
-			normals_ = Originalnormals_;
-			ScaleVertices(2, lastScale[0], lastScale[1], 1);
-			RotateModel(2, 0, latsRotationByX);
-			RotateModel(2, 1, latsRotationByY);
-			RotateModel(2, 2, latsRotationByZ);
-		}
-		float mat[4][4] = { {1,0,0,x},{0,1,0,y},{0,0,1,z},{0,0,0,1} };
-		MulMat(mat);
-		lastTranslate[0] = x;
-		lastTranslate[1] = y;
-	}
+	Transformedvertices_ = vertices_;
 }
 
-void MeshModel::ScaleVertices(int first, float x, float y, float z)  {
-	if (first==1) {
-		glm::vec3 maxs = glm::vec3(vertices_[0][0], vertices_[0][1], vertices_[0][2]);
-		for (int i = 0; i < vertices_.size(); i++) {
-			if (vertices_[i][0] > maxs[0])
-				maxs[0] = vertices_[i][0];
-			if (vertices_[i][1] > maxs[1])
-				maxs[1] = vertices_[i][1];
-			if (vertices_[i][2] > maxs[2])
-				maxs[2] = vertices_[i][2];
-		}
-		maxs[0] = 350 / maxs[0];
-		maxs[1] = 350 / maxs[1];
-		maxs[2] = 350 / maxs[2];
-		if (maxs[0] < maxs[1])maxs[1] = maxs[0];
-		else maxs[0] = maxs[1];
-		if (maxs[2] < maxs[1])maxs[1] = maxs[2];
-		else maxs[2] = maxs[1];
-		float mat[4][4] = { {maxs[0],0,0,0},{0,maxs[0],0,0},{0,0,maxs[0],0},{0,0,0,1} };
-		MulMat(mat);
-		Originalfaces_ = faces_;
-		Originalnormals_ = normals_;
-		Originalvertices_ = vertices_;
+void MeshModel::TranslateVertices(char * lw,float x,float y,float z) {
+	if (strcmp(lw, "world") == 0) {
+		tWorldMatrix[0][3] = x;
+		tWorldMatrix[1][3] = y;
+		tWorldMatrix[2][3] = z;
 	}
 	else {
-		if (first != 2) {
-			faces_ = Originalfaces_;
-			vertices_ = Originalvertices_;
-			normals_ = Originalnormals_;
-			TranslateVertices(2, lastTranslate[0], lastTranslate[1], 0);
-			RotateModel(2, 0, latsRotationByX);
-			RotateModel(2, 1, latsRotationByY);
-			RotateModel(2, 2, latsRotationByZ);
+		tLocalMatrix[0][3] = x;
+		tLocalMatrix[1][3] = y;
+		tLocalMatrix[2][3] = z;
+	}
+	Transform();
+}
+
+
+void MeshModel::ScaleVertices(char* lw, float x, float y, float z) {
+	if (strcmp(lw, "world") == 0) {
+		sWorldMatrix[0][0] = x;
+		sWorldMatrix[1][1] = y;
+		sWorldMatrix[2][2] = z;
+	}
+	else {
+		sLocalMatrix[0][0] = x;
+		sLocalMatrix[1][1] = y;
+		sLocalMatrix[2][2] = z;
+	}
+	Transform();
+}
+
+void MeshModel::Transform() {
+	int i = 0, j = 0;
+	glm::vec4 temp;
+	glm::vec3 temp1;
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(vertices_[k][0], vertices_[k][1], vertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
+			while (j < 4) {
+				sum =sum+ temp[j] * tLocalMatrix[i][j];
+				j++;
+			}
+			if(i<3)temp1[i] = sum;
+			j = 0;
+			i++;
 		}
-		float mat[4][4] = { {x,0,0,0},{0,y,0,0},{0,0,z,0},{0,0,0,1} };
-		MulMat(mat);
-		lastScale[0] = x;
-		lastScale[1] = y;
+		Transformedvertices_[k] = temp1;
+	}
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(Transformedvertices_[k][0], Transformedvertices_[k][1], Transformedvertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
+			while (j < 4) {
+				sum = sum + temp[j] * sLocalMatrix[i][j];
+				j++;
+			}
+			if (i < 3)temp1[i] = sum;
+			j = 0;
+			i++;
+		}
+		Transformedvertices_[k] = temp1;
+	}
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(Transformedvertices_[k][0], Transformedvertices_[k][1], Transformedvertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
+			while (j < 4) {
+				sum = sum + temp[j] * rLocalMatrix[i][j];
+				j++;
+			}
+			if (i < 3)temp1[i] = sum;
+			j = 0;
+			i++;
+		}
+		Transformedvertices_[k] = temp1;
+	}
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(Transformedvertices_[k][0], Transformedvertices_[k][1], Transformedvertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
+			while (j < 4) {
+				sum = sum + temp[j] * tWorldMatrix[i][j];
+				j++;
+			}
+			if (i < 3)temp1[i] = sum;
+			j = 0;
+			i++;
+		}
+		Transformedvertices_[k] = temp1;
+	}
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(Transformedvertices_[k][0], Transformedvertices_[k][1], Transformedvertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
+			while (j < 4) {
+				sum = sum + temp[j] * sWorldMatrix[i][j];
+				j++;
+			}
+			if (i < 3)temp1[i] = sum;
+			j = 0;
+			i++;
+		}
+		Transformedvertices_[k] = temp1;
+	}
+	for (int k = 0; k < vertices_.size(); k++) {
+		i = 0;
+		temp = glm::vec4(Transformedvertices_[k][0], Transformedvertices_[k][1], Transformedvertices_[k][2], 1);
+		while (i < 4) {
+			float sum = 0;
+			while (j < 4) {
+				sum = sum + temp[j] * rWorldMatrix[i][j];
+				j++;
+			}
+			if (i < 3)temp1[i] = sum;
+			j = 0;
+			i++;
+		}
+		Transformedvertices_[k] = temp1;
 	}
 }
 
 glm::vec3 MeshModel::GetVertex(int index)const {
-	return vertices_[index];
+	return Transformedvertices_[index];
 }
 
-void MeshModel::RotateModel(int Sync,int axis, float angle) {
-
-	if (axis == 2){
-		if (Sync != 2) {
-			latsRotationByZ = angle;
-			faces_ = Originalfaces_;
-			vertices_ = Originalvertices_;
-			normals_ = Originalnormals_;
-			TranslateVertices(2, lastTranslate[0], lastTranslate[1], 0);
-			ScaleVertices(2, lastScale[0], lastScale[1], 1);
-			RotateModel(2, 0, latsRotationByX);
-			RotateModel(2, 1, latsRotationByY);
-		}
+void MeshModel::RotateModel(char * lw,int axis, float angle) {
+	if (axis == 2) {
 		float mat[4][4] = { {cos(angle),-sin(angle),0,0},{sin(angle),cos(angle),0,0},{0,0,1,0},{0,0,0,1} };
-		MulMat(mat);
+		MulMat(lw,mat);
 	}
-	if (axis == 1) {
-		if (Sync != 2) {
-			latsRotationByY = angle;
-			faces_ = Originalfaces_;
-			vertices_ = Originalvertices_;
-			normals_ = Originalnormals_;
-			TranslateVertices(2, lastTranslate[0], lastTranslate[1], 0);
-			ScaleVertices(2, lastScale[0], lastScale[1], 1);
-			RotateModel(2, 0, latsRotationByX);
-			RotateModel(2, 2, latsRotationByZ);
-		}
+	else if (axis == 1) {
 		float mat[4][4] = { {cos(angle),0,-sin(angle),0},{0,1,0,0} ,{sin(angle),0,cos(angle),0},{0,0,0,1} };
-		MulMat(mat);
+		MulMat(lw,mat);
 	}
-	if (axis == 0) {
-		if (Sync != 2) {
-			latsRotationByX = angle;
-			faces_ = Originalfaces_;
-			vertices_ = Originalvertices_;
-			normals_ = Originalnormals_;
-			TranslateVertices(2, lastTranslate[0], lastTranslate[1], 0);
-			ScaleVertices(2, lastScale[0], lastScale[1], 1);
-			RotateModel(2, 1, latsRotationByY);
-			RotateModel(2, 2, latsRotationByZ);
-		}
+	else {
 		float mat[4][4] = { {1,0,0,0}, {0,cos(angle),-sin(angle),0},{0,sin(angle),cos(angle),0},{0,0,0,1} };
-		MulMat(mat);
+		MulMat(lw,mat);
 	}
+	Transform();
 }

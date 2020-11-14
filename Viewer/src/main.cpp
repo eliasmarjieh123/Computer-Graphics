@@ -12,7 +12,7 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "Utils.h"
-
+const float pi = 3.14159265359;
 /**
  * Fields
  */
@@ -44,7 +44,6 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 int main(int argc, char **argv)
 {
 	int windowWidth = 1280, windowHeight = 720,i=0;
-	char * path= "C:\\Users\\elias\\OneDrive\\Documents\\GitHub\\computergraphics2021-eliass\\Data\\banana.obj";
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
 		return 1;
@@ -184,8 +183,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				if (result == NFD_OKAY)
 				{
 					scene.AddModel(Utils::LoadMeshModel(outPath));
-					scene.GetActiveModel().ScaleVertices();
-					scene.GetActiveModel().TranslateVertices();
+					scene.GetActiveModel().TranslateAndScaleVertices();
 					free(outPath);
 				}
 				else if (result == NFD_CANCEL)
@@ -241,7 +239,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 3. Show another simple window.
-	static float xscale = 1, yscale = 1,xtranslate = 0, ytranslate = 0,Angle=0;
+	static float xscale = 1, yscale = 1,zscale=1,ztranslate=0,xtranslate = 0, ytranslate = 0,Angle=0;
 	if (show_another_window)
 	{
 		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -253,90 +251,155 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	if (show_transformations_window)
 	{
 		ImGui::Begin("Transformations Window", &show_transformations_window);
-		if (ImGui::Button("Close Me"))
-			show_transformations_window = false;
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
-		{
-			if (ImGui::BeginTabItem("Scale"))
-			{
-				ImGui::SliderFloat("Scale by x", &xscale, 0.0f, 3.0f, "%.5f");
-
-				ImGui::SliderFloat("Scale by y", &yscale, 0.0f, 3.0f, "%.5f");
-				if (ImGui::Button("Scale"))
+		{ 
+			if (ImGui::BeginTabItem("Loacl")) {
+				if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 				{
-					scene.GetActiveModel().ScaleVertices(0, xscale, yscale, 0);
-				}
-				if (ImGui::Button("Reset Model"))
-				{
-					scene.GetActiveModel().ScaleVertices(0, 1, 1, 0);
-					scene.GetActiveModel().TranslateVertices(0, 0, 0, 0);
-					scene.GetActiveModel().RotateModel(0, 2, 0);
-					scene.GetActiveModel().RotateModel(0, 1, 0);
-					scene.GetActiveModel().RotateModel(0, 0, 0);
-					xscale = 1;
-					yscale = 1;
-					xtranslate = 0;
-					ytranslate = 0;
-					Angle = 0;
+					if (ImGui::BeginTabItem("Scale"))
+					{
+						ImGui::SliderFloat("Scale by x", &xscale, 0.0f, 3.0f, "%.5f");
+						ImGui::SliderFloat("Scale by y", &yscale, 0.0f, 3.0f, "%.5f");
+						ImGui::SliderFloat("Scale by z", &zscale, 0.0f, 3.0f, "%.5f");
+						if (ImGui::Button("Scale"))
+						{
+							scene.GetActiveModel().ScaleVertices("local", xscale, yscale, zscale);
+						}
+						if (ImGui::Button("Reset Model"))
+						{
+							scene.GetActiveModel().ResetModel();
+							xscale = 1;
+							yscale = 1;
+							xtranslate = 0;
+							ytranslate = 0;
+							Angle = 0;
+						}
+						ImGui::EndTabItem();
+					}
+					if (ImGui::BeginTabItem("Translate")) {
+						ImGui::SliderFloat("Translate by x", &xtranslate, 0.0f, 500.0f, "%.0f");
+						ImGui::SliderFloat("Translate by y", &ytranslate, 0.0f, 500.0f, "%.0f");
+						ImGui::SliderFloat("Translate by z", &ztranslate, 0.0f, 500.0f, "%.0f");
+						if (ImGui::Button("Translate"))
+						{
+							scene.GetActiveModel().TranslateVertices("local", xtranslate, ytranslate, ztranslate);
+						}
+						if (ImGui::Button("Reset Model"))
+						{
+							scene.GetActiveModel().ResetModel();
+							xscale = 1;
+							yscale = 1;
+							xtranslate = 0;
+							ytranslate = 0;
+							Angle = 0;
+						}
+						ImGui::EndTabItem();
+					}
+					if (ImGui::BeginTabItem("Rotate"))
+					{
+						ImGui::SliderFloat("Angle of Rotation", &Angle, 0.0f, 360.0f, "%.f");
+						if (ImGui::Button("Rotate By X axis"))
+						{
+							scene.GetActiveModel().RotateModel("local", 0, Angle * (pi / 180));
+						}
+						if (ImGui::Button("Rotate By Y axis"))
+						{
+							scene.GetActiveModel().RotateModel("local", 1, Angle * (pi / 180));
+						}
+						if (ImGui::Button("Rotate By Z axis"))
+						{
+							scene.GetActiveModel().RotateModel("local", 2, Angle * (pi / 180));
+						}
+						if (ImGui::Button("Reset Model"))
+						{
+							scene.GetActiveModel().ResetModel();
+							xscale = 1;
+							yscale = 1;
+							xtranslate = 0;
+							ytranslate = 0;
+							Angle = 0;
+						}
+						ImGui::EndTabItem();
+					}
+					ImGui::EndTabBar();
 				}
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Translate")){
-			ImGui::SliderFloat("Translate by x", &xtranslate, 0.0f, 500.0f, "%.0f");
-			ImGui::SliderFloat("Translate by y", &ytranslate, 0.0f, 500.0f, "%.0f");
-			if (ImGui::Button("Translate"))
-			{
-				scene.GetActiveModel().TranslateVertices(0, xtranslate, ytranslate, 0);
-			}
-			if (ImGui::Button("Reset Model"))
-			{
-				scene.GetActiveModel().ScaleVertices(0, 1, 1, 0);
-				scene.GetActiveModel().TranslateVertices(0, 0, 0, 0);
-				scene.GetActiveModel().RotateModel(0, 2, 0);
-				scene.GetActiveModel().RotateModel(0, 1, 0);
-				scene.GetActiveModel().RotateModel(0, 0, 0);
-				xscale = 1;
-				yscale = 1;
-				xtranslate = 0;
-				ytranslate = 0;
-				Angle = 0;
-			}
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Rotate"))
-			{
-				ImGui::SliderFloat("Angle of Rotation", &Angle, 0.0f, 6.28319f, "%.5f");
-				if (ImGui::Button("Rotate By X axis"))
+			if (ImGui::BeginTabItem("World")) {
+				if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 				{
-					scene.GetActiveModel().RotateModel(0,0, Angle);
-				}
-				if (ImGui::Button("Rotate By Y axis"))
-				{
-					scene.GetActiveModel().RotateModel(0,1, Angle);
-				}
-				if (ImGui::Button("Rotate By Z axis"))
-				{
-					scene.GetActiveModel().RotateModel(0,2, Angle);
-				}
-				if (ImGui::Button("Reset Model"))
-				{
-					scene.GetActiveModel().ScaleVertices(0, 1, 1, 0);
-					scene.GetActiveModel().TranslateVertices(0, 0, 0, 0);
-					scene.GetActiveModel().RotateModel(0,2, 0);
-					scene.GetActiveModel().RotateModel(0,1, 0);
-					scene.GetActiveModel().RotateModel(0,0, 0);
-					xscale = 1;
-					yscale = 1;
-					xtranslate = 0;
-					ytranslate = 0;
-					Angle = 0;
+					if (ImGui::BeginTabItem("Scale"))
+					{
+						ImGui::SliderFloat("Scale by x", &xscale, 0.0f, 3.0f, "%.5f");
+						ImGui::SliderFloat("Scale by y", &yscale, 0.0f, 3.0f, "%.5f");
+						ImGui::SliderFloat("Scale by z", &zscale, 0.0f, 3.0f, "%.5f");
+						if (ImGui::Button("Scale"))
+						{
+							scene.GetActiveModel().ScaleVertices("world", xscale, yscale, zscale);
+						}
+						if (ImGui::Button("Reset Model"))
+						{
+							scene.GetActiveModel().ResetModel();
+							xscale = 1;
+							yscale = 1;
+							xtranslate = 0;
+							ytranslate = 0;
+							Angle = 0;
+						}
+						ImGui::EndTabItem();
+					}
+					if (ImGui::BeginTabItem("Translate")) {
+						ImGui::SliderFloat("Translate by x", &xtranslate, 0.0f, 500.0f, "%.0f");
+						ImGui::SliderFloat("Translate by y", &ytranslate, 0.0f, 500.0f, "%.0f");
+						ImGui::SliderFloat("Translate by z", &ztranslate, 0.0f, 500.0f, "%.0f");
+						if (ImGui::Button("Translate"))
+						{
+							scene.GetActiveModel().TranslateVertices("world", xtranslate, ytranslate, ztranslate);
+						}
+						if (ImGui::Button("Reset Model"))
+						{
+							scene.GetActiveModel().ResetModel();
+							xscale = 1;
+							yscale = 1;
+							xtranslate = 0;
+							ytranslate = 0;
+							Angle = 0;
+						}
+						ImGui::EndTabItem();
+					}
+					if (ImGui::BeginTabItem("Rotate"))
+					{
+						ImGui::SliderFloat("Angle of Rotation", &Angle, 0.0f, 360.0f, "%.f");
+						if (ImGui::Button("Rotate By X axis"))
+						{
+							scene.GetActiveModel().RotateModel("world", 0, Angle * (pi / 180));
+						}
+						if (ImGui::Button("Rotate By Y axis"))
+						{
+							scene.GetActiveModel().RotateModel("world", 1, Angle * (pi / 180));
+						}
+						if (ImGui::Button("Rotate By Z axis"))
+						{
+							scene.GetActiveModel().RotateModel("world", 2, Angle * (pi / 180));
+						}
+						if (ImGui::Button("Reset Model"))
+						{
+							scene.GetActiveModel().ResetModel();
+							xscale = 1;
+							yscale = 1;
+							xtranslate = 0;
+							ytranslate = 0;
+							Angle = 0;
+						}
+						ImGui::EndTabItem();
+					}
+					ImGui::EndTabBar();
 				}
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
 		}
-	
 		ImGui::End();
 	}
 }
