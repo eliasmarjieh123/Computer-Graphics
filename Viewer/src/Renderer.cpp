@@ -1,7 +1,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
-
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/normal.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Renderer.h"
 #include "InitShader.h"
 #include <iostream>
@@ -41,7 +43,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 	a = float(float(p2.y - p1.y) / float(p2.x - p1.x));
 	//std::cout << a;
 	//std::cout << a<<std::endl;
-	if (a > 0 && a < 1) {
+	if (a > 0 && a <= 1) {
 			c = p1.y + a * p1.x;
 			while (x <= p2.x) {
 				//std::cout << e << std::endl;
@@ -74,7 +76,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		}
 	}
 
-	else if (a > -1 && a < 0) {
+	else if (a >= -1 && a <= 0) {
 		c = p1.y + a * p1.x;
 		while (x <= p2.x) {
 			//std::cout << e << std::endl;
@@ -249,18 +251,29 @@ void Renderer::Render(const Scene& scene)
 	int half_width = viewport_width_ / 2;
 	int half_height = viewport_height_ / 2;
 	int thickness = 15;
-	int r = 100,steps=50;
+	int r = 100, steps = 50;
 	float angle = 2.f * PI / steps;
-	char* path = "C:\\Users\\elias\\OneDrive\\Documents\\GitHub\\computergraphics2021-eliass\\Data\\banana.obj";
 	if (scene.GetModelCount() > 0) {
 		auto mesh = &scene.GetActiveModel();
+		//for (int i = 0; i < mesh->GetFacesCount(); i++) {
+		//	glm::vec3 v1= mesh->GetCenter(i),v4= mesh->GetNormal(i);
+		//	glm::ivec2 point1 = glm::ivec2(v1[0], v1[1]);
+		//	glm::ivec2 point4 = glm::ivec2(v4[0], v4[1]);
+		//	if (point1.x > point4.x) {
+		//		DrawLine(point4, point1, glm::vec3(0, 0, 255));
+		//	}
+		//	else {
+		//		DrawLine(point1, point4, glm::vec3(0, 0, 255));
+		//	}
+		//}
 		for (int i = 0; i < mesh->GetFacesCount(); i++) {
 			int p1 = mesh->GetFace(i).GetVertexIndex(0);
 			int p2 = mesh->GetFace(i).GetVertexIndex(1);
 			int p3 = mesh->GetFace(i).GetVertexIndex(2);
-			glm::ivec2 point1 = glm::ivec2(mesh->GetVertex(p1-1)[0], mesh->GetVertex(p1-1)[1]);
-			glm::ivec2 point2 = glm::ivec2(mesh->GetVertex(p2-1)[0], mesh->GetVertex(p2-1)[1]);
-			glm::ivec2 point3 = glm::ivec2(mesh->GetVertex(p3-1)[0], mesh->GetVertex(p3-1)[1]);
+			glm::vec3 v1 = mesh->GetVertex(p1 - 1), v2 = mesh->GetVertex(p2 - 1), v3 = mesh->GetVertex(p3 - 1), v4 = mesh->GetNormal(i);
+			glm::ivec2 point1 = glm::ivec2(v1[0], v1[1]);
+			glm::ivec2 point2 = glm::ivec2(v2[0], v2[1]);
+			glm::ivec2 point3 = glm::ivec2(v3[0], v3[1]);
 			if (point2.x > point1.x) {
 				DrawLine(point1, point2, glm::vec3(0, 0, 0));
 			}
@@ -280,6 +293,101 @@ void Renderer::Render(const Scene& scene)
 				DrawLine(point2, point3, glm::vec3(0, 0, 0));
 			}
 		}
+		glm::ivec2 point1 = glm::ivec2(mesh->GetVOfBoundingBox(0).x, mesh->GetVOfBoundingBox(0).y);
+		glm::ivec2 point2 = glm::ivec2(mesh->GetVOfBoundingBox(1).x, mesh->GetVOfBoundingBox(1).y);
+		glm::ivec2 point3 = glm::ivec2(mesh->GetVOfBoundingBox(2).x, mesh->GetVOfBoundingBox(2).y);
+		glm::ivec2 point4 = glm::ivec2(mesh->GetVOfBoundingBox(3).x, mesh->GetVOfBoundingBox(3).y);
+		if (point2.x > point1.x) {
+			DrawLine(point1, point2, glm::vec3(100, 100, 0));
+		}										  
+		else {									  
+			DrawLine(point2, point1, glm::vec3(100, 100, 0));
+		}										 
+		if (point3.x > point1.x) {				 
+			DrawLine(point1, point3, glm::vec3(100, 100, 0));
+		}										 
+		else {									 
+			DrawLine(point3, point1, glm::vec3(100, 100, 0));
+		}										 
+		if (point2.x > point4.x) {				 
+			DrawLine(point4, point2, glm::vec3(100, 100, 0));
+		}										 
+		else {									 
+			DrawLine(point2, point4, glm::vec3(100, 100, 0));
+		}										 
+		if (point4.x > point3.x) {				 
+			DrawLine(point3, point4, glm::vec3(100, 100, 0));
+		}										 
+		else {									 
+			DrawLine(point4, point3, glm::vec3(100, 100, 0));
+		}
+		for (int i = 0; i < mesh->GetFacesCount(); i++) {
+			Face face= mesh->GetFace(i);
+			int vi1 = face.GetVertexIndex(0);
+			int vi2 = face.GetVertexIndex(1);
+			int vi3 = face.GetVertexIndex(2);
+			int vni1 = face.GetNormalIndex(0);
+			int vni2 = face.GetNormalIndex(1);
+			int vni3 = face.GetNormalIndex(2);
+			glm::vec4 v1 = glm::vec4(mesh->GetVertex(vi1 - 1), 1);
+			glm::vec4 v2 = glm::vec4(mesh->GetVertex(vi2 - 1), 1);
+			glm::vec4 v3 = glm::vec4(mesh->GetVertex(vi3 - 1), 1);
+			glm::vec4 vn1 = glm::vec4(mesh->GetVertexNormal(vni1 - 1), 1);
+			glm::vec4 vn2 = glm::vec4(mesh->GetVertexNormal(vni2 - 1), 1);
+			glm::vec4 vn3 = glm::vec4(mesh->GetVertexNormal(vni3 - 1), 1);
+			if ((v1.x / v1.w) < (vn1.x / vn1.w + v1.x)) {
+				DrawLine(glm::ivec2(v1.x / v1.w, v1.y / v1.w), glm::ivec2((vn1.x / vn1.w) + v1.x, (vn1.y / vn1.w) + v1.y), glm::vec3(0, 0, 255));
+			}
+			else {
+				DrawLine( glm::ivec2((vn1.x / vn1.w) + v1.x, (vn1.y / vn1.w) + v1.y), glm::ivec2(v1.x / v1.w, v1.y / v1.w), glm::vec3(0, 0, 255));
+			}
+			if ((v2.x / v2.w )< (vn2.x / vn2.w + v2.x)) {
+				DrawLine(glm::ivec2(v2.x / v2.w, v2.y / v2.w), glm::ivec2((vn2.x / vn2.w) + v2.x, (vn2.y / vn2.w) + v2.y), glm::vec3(0, 0, 255));
+			}
+			else {
+				DrawLine(glm::ivec2((vn2.x / vn2.w) + v2.x, (vn2.y / vn2.w) + v2.y), glm::ivec2(v2.x / v2.w, v2.y / v2.w), glm::vec3(0, 0, 255));
+			}
+			if ((v3.x / v3.w) < (vn3.x / vn3.w + v3.x)) {
+				DrawLine(glm::ivec2(v3.x / v3.w, v3.y / v3.w), glm::ivec2((vn3.x / vn3.w) + v3.x, (vn3.y / vn3.w) + v3.y), glm::vec3(0, 0, 255));
+			}
+			else {
+				DrawLine(glm::ivec2((vn3.x / vn3.w) + v3.x, (vn3.y / vn3.w) + v3.y), glm::ivec2(v3.x / v3.w, v3.y / v3.w), glm::vec3(0, 0, 255));
+			}
+		}
+		//for (int i = 0; i < mesh->GetFacesCount(); i++) {
+		//	int n1 = mesh->GetFace(i).GetNormalIndex(0);
+		//	int n2 = mesh->GetFace(i).GetNormalIndex(1);
+		//	int n3 = mesh->GetFace(i).GetNormalIndex(2);
+		//	glm::vec3 vn1 = mesh->GetVertexNormal(n1 - 1), vn2 = mesh->GetVertexNormal(n2 - 1), vn3 = mesh->GetVertexNormal(n3 - 1);
+		//	glm::ivec2 point111 = glm::ivec2(vn1[0], vn1[1]);
+		//	glm::ivec2 point222 = glm::ivec2(vn2[0], vn2[1]);
+		//	glm::ivec2 point333 = glm::ivec2(vn3[0], vn3[1]);
+		//	int p1 = mesh->GetFace(i).GetVertexIndex(0);
+		//	int p2 = mesh->GetFace(i).GetVertexIndex(1);
+		//	int p3 = mesh->GetFace(i).GetVertexIndex(2);
+		//	glm::vec3 v1 = mesh->GetVertex(p1 - 1), v2 = mesh->GetVertex(p2 - 1), v3 = mesh->GetVertex(p3 - 1);
+		//	glm::ivec2 point11 = glm::ivec2(v1[0], v1[1]);
+		//	glm::ivec2 point22 = glm::ivec2(v2[0], v2[1]);
+		//	glm::ivec2 point33 = glm::ivec2(v3[0], v3[1]);
+		//	if (point11.x > point111.x) {
+		//		DrawLine(point111, point11, glm::vec3(0, 0, 255));
+		//	}
+		//	else {
+		//		DrawLine(point11, point111, glm::vec3(0, 0, 255));
+		//	}
+		//	if (point22.x > point222.x) {
+		//		DrawLine(point222, point22, glm::vec3(0, 0, 255));
+		//	}
+		//	else {
+		//		DrawLine(point22, point222, glm::vec3(0, 0, 255));
+		//	}
+		//	if (point333.x > point33.x) {
+		//		DrawLine(point33, point333, glm::vec3(0, 0, 255));
+		//	}
+		//	else {
+		//		DrawLine(point333, point33, glm::vec3(0, 0, 255));
+		//	}
+	    //}
 	}
     ///////////////////////////////this loop test Bresenham's algorithm
 	//for (int i = 0; i <= steps; i++) {

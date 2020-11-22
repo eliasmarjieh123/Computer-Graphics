@@ -185,6 +185,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 					scene.AddModel(Utils::LoadMeshModel(outPath));
 					//scene.GetActiveModel().printFacesAndVertices();
 					scene.GetActiveModel().TranslateAndScaleVertices();
+					scene.GetActiveModel().CalculateCenters();
+					scene.GetActiveModel().CalculateFacesNormals();
+					scene.GetActiveModel().TranslateAndScaleNormals();
 					free(outPath);
 				}
 				else if (result == NFD_CANCEL)
@@ -255,7 +258,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 		{ 
-			if (ImGui::BeginTabItem("Loacl")) {
+			if (ImGui::BeginTabItem("Local")) {
 				if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 				{
 					if (ImGui::BeginTabItem("Scale"))
