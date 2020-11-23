@@ -24,16 +24,33 @@ public:
 	glm::vec3 MeshModel::GetNormal(int index)const;
 	void TranslateAndScaleNormals();
 	void CalculateBoundingBox();
-	void MeshModel::CalculateCenters();
+	void CalculateCenters();
 	glm::vec3 GetVOfBoundingBox(int i);
 	glm::vec3 MeshModel::GetCenter(int i);
 	glm::vec3 MeshModel::GetVertexNormal(int index)const;
 	int GetVerticesCount();
+	void Set_ShowFaceNormals(bool flag);
+	void Set_ShowVertexNormals(bool flag);
+	void Set_ShowBoundingBox(bool flag);
+	bool Get_ShowFaceNormals();
+	bool Get_ShowVertexNormals();
+	bool Get_ShowBoundingBox();
+	void Set_ShowFaceNormalsColor(glm::vec3 Color);
+	void Set_ShowVertexNormalsColor(glm::vec3 Color);
+	void Set_ShowBoundingBoxColor(glm::vec3 Color);
+	glm::vec3 Get_ShowFaceNormalsColor();
+	glm::vec3 Get_ShowVertexNormalsColor();
+	glm::vec3 Get_ShowBoundingBoxColor();
+
 private:
 	std::vector<Face> faces_;
 	std::vector<glm::vec3> vertices_;
 	std::vector<glm::vec3> normals_;
 	std::vector<glm::vec3> Facesnormals_;
+	std::vector<glm::vec3> BoundingBox;
+	std::vector<glm::vec3> Transformedvertices_;
+	std::vector<glm::vec3> Transformednormals_;
+	std::vector<glm::vec3> Centers;
 	glm::mat4x4 tWorldMatrix;
 	glm::mat4x4 rWorldMatrix;
 	glm::mat4x4 sWorldMatrix;
@@ -41,10 +58,6 @@ private:
 	glm::mat4x4 rLocalMatrix;
 	glm::mat4x4 sLocalMatrix;
 	glm::mat4x4 Transformation;
-	std::vector<glm::vec3> BoundingBox;
-	std::vector<glm::vec3> Transformedvertices_;
-	std::vector<glm::vec3> Transformednormals_;
-	std::vector<glm::vec3> Centers;
 	std::string model_name_;
 	float minX=0;
 	float minY=0;
@@ -52,4 +65,10 @@ private:
 	float maxX=0;
 	float maxY=0;
 	float maxZ=0;
+	bool ShowVertexNormals;
+	bool ShowFaceNormals;
+	bool ShowBoundingBox;
+	glm::vec3 ShowVertexNormalsColor;
+	glm::vec3 ShowFaceNormalsColor;
+	glm::vec3 ShowBoundingBoxColor;
 };

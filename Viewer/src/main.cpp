@@ -19,6 +19,11 @@ const float pi = 3.14159265359;
 bool show_demo_window = false;
 bool show_another_window = false;
 bool show_transformations_window = false;
+bool show_what_to_show_window = false;
+bool Draw_Vertex_Normal = false;
+bool Draw_Bounding_Box = false;
+bool Draw_Face_Normal = false;
+
 glm::vec4 clear_color = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
 /**
@@ -65,6 +70,7 @@ int main(int argc, char **argv)
     }
 
 	Cleanup(window);
+	renderer.~Renderer();
     return 0;
 }
 
@@ -230,6 +236,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Another Window", &show_another_window);
 		ImGui::Checkbox("Transformations Window", &show_transformations_window);
+		ImGui::Checkbox("Show Window", &show_what_to_show_window);
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
@@ -244,12 +251,47 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 	// 3. Show another simple window.
 	static float xscale = 1, yscale = 1,zscale=1,ztranslate=0,xtranslate = 0, ytranslate = 0,Anglew=0,Angle=0,xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
+	static glm::vec3 VertexNormalsColor(0.8f,0.8f,0.8f) ;
+	static glm::vec3 FaceNormalsColor(0.8f,0.8f,0.8f) ;
+	static glm::vec3 BoundingBoxColor(0.8f,0.8f,0.8f) ;
 	if (show_another_window)
 	{
 		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 		ImGui::Text("Hello from another window!");
 		if (ImGui::Button("Close Me"))
 			show_another_window = false;
+		ImGui::End();
+	}
+	if (show_what_to_show_window)
+	{
+		ImGui::Begin("Show Window", &show_what_to_show_window);
+		ImGui::Checkbox("Draw Normal Per Vertex", &Draw_Vertex_Normal);
+		ImGui::Checkbox("Draw Normal Per Face", &Draw_Face_Normal);
+		ImGui::Checkbox("Draw Bounding Box", &Draw_Bounding_Box);
+		if (Draw_Vertex_Normal) {
+			scene.GetActiveModel().Set_ShowVertexNormals(1);
+			ImGui::ColorEdit3("Pick Vertex Normals Color", (float*)&VertexNormalsColor);
+			scene.GetActiveModel().Set_ShowVertexNormalsColor(VertexNormalsColor);
+		}
+		else {
+			scene.GetActiveModel().Set_ShowVertexNormals(0);
+		}
+		if (Draw_Face_Normal) {
+			scene.GetActiveModel().Set_ShowFaceNormals(1);
+			ImGui::ColorEdit3("Pick Face Normals Color", (float*)&FaceNormalsColor);
+			scene.GetActiveModel().Set_ShowFaceNormalsColor(FaceNormalsColor);
+		}
+		else {
+			scene.GetActiveModel().Set_ShowFaceNormals(0);
+		}
+		if (Draw_Bounding_Box) {
+			scene.GetActiveModel().Set_ShowBoundingBox(1);
+			ImGui::ColorEdit3("Pick Bounding Box Color", (float*)&BoundingBoxColor);
+			scene.GetActiveModel().Set_ShowBoundingBoxColor(BoundingBoxColor);
+		}
+		else {
+			scene.GetActiveModel().Set_ShowBoundingBox(0);
+		}
 		ImGui::End();
 	}
 	if (show_transformations_window)

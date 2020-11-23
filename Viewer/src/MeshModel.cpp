@@ -17,6 +17,12 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	sWorldMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	rWorldMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	Transformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	ShowVertexNormals=0;
+	ShowFaceNormals=0;
+	ShowBoundingBox=0;
+	 ShowVertexNormalsColor=glm::vec3(0.8f,0.8f,0.8f);
+	 ShowFaceNormalsColor= glm::vec3(0.8f, 0.8f, 0.8f);
+	 ShowBoundingBoxColor= glm::vec3(0.8f, 0.8f, 0.8f);
 }
 
 MeshModel::~MeshModel()
@@ -113,58 +119,6 @@ void MeshModel::TranslateAndScaleNormals() {
 		normals_[vni3 - 1] = glm::scale(glm::vec3(40, 40, 40)) * rWorldMatrix*rLocalMatrix*glm::vec4(this->GetVertexNormal(vni3-1),1);
 	}
 	Transformednormals_ = normals_;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//Transformednormals_ = normals_;
-	//for (int i = 0; i < GetFacesCount(); i++) {
-	//	int p1 = this->GetFace(i).GetVertexIndex(0)-1;
-	//	int p2 = this->GetFace(i).GetVertexIndex(1)-1;
-	//	int p3 = this->GetFace(i).GetVertexIndex(2)-1;
-	//	glm::vec3 v1 = this->GetVertex(p1 ), v2 = this->GetVertex(p2 ), v3 = this->GetVertex(p3 );
-	//	int n1 = this->GetFace(i).GetNormalIndex(0)-1;
-	//	int n2 = this->GetFace(i).GetNormalIndex(1)-1;
-	//	int n3 = this->GetFace(i).GetNormalIndex(2)-1;
-	//	glm::vec3 vn1 = this->GetVertexNormal(n1), vn2 = this->GetVertexNormal(n2 ), vn3 = this->GetVertexNormal(n3);
-	//	glm::vec4 vnn1=glm::vec4(vn1.x, vn1.y, vn1.z, 1);
-	//	glm::vec4 vnn2 = glm::vec4(vn2.x, vn2.y, vn2.z, 1);
-	//	glm::vec4 vnn3 = glm::vec4(vn3.x, vn3.y, vn3.z, 1);
-	//	vnn1 = glm::scale(glm::vec3(40, 40, 40)) * vnn1;
-	//	vnn2 = glm::scale(glm::vec3(40, 40, 40)) * vnn2;
-	//	vnn3 = glm::scale(glm::vec3(40, 40, 40)) * vnn3;
-	//	vn1.x = vnn1.x / vnn1.w;
-	//	vn1.y = vnn1.y / vnn1.w;
-	//	vn1.z = vnn1.z / vnn1.w;
-	//	vn1 += v1;
-	//
-	//	vn2.x = vnn2.x / vnn2.w;
-	//	vn2.y = vnn2.y / vnn2.w;
-	//	vn2.z = vnn2.z / vnn2.w;
-	//	vn2 += v2;
-	//
-	//	vn3.x = vnn3.x / vnn3.w;
-	//	vn3.y = vnn3.y / vnn3.w;
-	//	vn3.z = vnn3.z / vnn3.w;
-	//	vn3 += v3;
-	//
-	//	normals_[n1] = vn1;
-	//	normals_[n2] = vn2;
-	//	normals_[n3] = vn3;
-	//}
-	//Transformednormals_ = normals_;
 }
 
 void MeshModel::TranslateAndScaleVertices(){
@@ -190,9 +144,9 @@ void MeshModel::TranslateAndScaleVertices(){
 		if (vertices_[i][2] > maxs[2])
 			maxs[2] = vertices_[i][2];
 	}
-	maxs[0] = 350 / maxs[0];
-	maxs[1] = 350 / maxs[1];
-	maxs[2] = 350 / maxs[2];
+	maxs[0] = 330 / maxs[0];
+	maxs[1] = 330 / maxs[1];
+	maxs[2] = 330 / maxs[2];
 	if (maxs[0] < maxs[1])maxs[1] = maxs[0];
 	else maxs[0] = maxs[1];
 	if (maxs[2] < maxs[1])maxs[1] = maxs[2];
@@ -261,6 +215,9 @@ void MeshModel::ResetModel() {
 			}
 		}
 	}
+	ShowVertexNormals = 0;
+	ShowFaceNormals = 0;
+	ShowBoundingBox = 0;
 	Transformedvertices_ = vertices_;
 	Transformednormals_ = normals_;
 	CalculateBoundingBox();
@@ -314,14 +271,6 @@ void MeshModel::Transform() {
 		Transformedvertices_[k].y = temp.y / temp.w;
 		Transformedvertices_[k].z = temp.z/temp.w;
 	}
-
-	//for (int k = 0; k < normals_.size(); k++) {
-	//	temp1 = glm::vec4(normals_[k][0], normals_[k][1], normals_[k][2], 1);
-	//	temp1 = Transformation * temp1;
-	//	Transformednormals_[k].x = temp1.x / temp1.w;
-	//	Transformednormals_[k].y = temp1.y / temp1.w;
-	//	Transformednormals_[k].z = temp1.z / temp1.w;
-	//}
 	maxX = minX = Transformedvertices_[0].x;
 	maxY = minY = Transformedvertices_[0].y;
 	maxZ = minZ = Transformedvertices_[0].z;
@@ -423,4 +372,52 @@ glm::vec3 MeshModel::GetCenter(int i) {
 
 int MeshModel::GetVerticesCount() {
 	return vertices_.size();
+}
+
+void MeshModel::Set_ShowVertexNormals(bool flag) {
+	ShowVertexNormals = flag;
+}
+
+void MeshModel::Set_ShowFaceNormals(bool flag) {
+	ShowFaceNormals = flag;
+}
+
+void MeshModel::Set_ShowBoundingBox(bool flag) {
+	ShowBoundingBox = flag;
+}
+
+bool MeshModel::Get_ShowVertexNormals() {
+	return ShowVertexNormals;
+}
+
+bool MeshModel::Get_ShowFaceNormals() {
+	return ShowFaceNormals ;
+}
+
+bool MeshModel::Get_ShowBoundingBox() {
+	return ShowBoundingBox ;
+}
+
+void MeshModel::Set_ShowFaceNormalsColor(glm::vec3 Color) {
+	ShowFaceNormalsColor = Color;
+}
+
+void MeshModel::Set_ShowVertexNormalsColor(glm::vec3 Color) {
+	ShowVertexNormalsColor = Color;
+}
+
+void MeshModel::Set_ShowBoundingBoxColor(glm::vec3 Color) {
+	ShowBoundingBoxColor = Color;
+}
+
+glm::vec3 MeshModel::Get_ShowFaceNormalsColor() {
+	return ShowFaceNormalsColor;
+}
+
+glm::vec3 MeshModel::Get_ShowVertexNormalsColor() {
+	return ShowVertexNormalsColor;
+}
+
+glm::vec3 MeshModel::Get_ShowBoundingBoxColor() {
+	return ShowBoundingBoxColor;
 }
