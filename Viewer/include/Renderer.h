@@ -8,12 +8,16 @@ class Renderer
 public:
 	Renderer(int viewportWidth, int viewportHeight);
 	virtual ~Renderer();
-	void Render(const Scene& scene);
+	void Render( Scene& scene);
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	int GetViewportWidth() const;
 	int GetViewportHeight() const;
-	
+	glm::mat4x4 Renderer::GetViewPortTransformation();
+	void DrawFaces(glm::mat4x4 Transformation, MeshModel& mesh);
+	void DrawVertexNormals(glm::mat4x4 Transformation, MeshModel* mesh);
+	void DrawFaceNormals(MeshModel* mesh);
+	void DrawBoundingBox(MeshModel* mesh);
 private:
 	void PutPixel(const int i, const int j, const glm::vec3& color);
 	void DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);

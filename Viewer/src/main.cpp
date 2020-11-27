@@ -12,13 +12,14 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "Utils.h"
-const float pi = 3.14159265359;
+#include "Camera.h"
 /**
  * Fields
  */
 bool show_demo_window = false;
 bool show_another_window = false;
 bool show_transformations_window = false;
+bool show_camera_transformations_window = false;
 bool show_what_to_show_window = false;
 bool Draw_Vertex_Normal = false;
 bool Draw_Bounding_Box = false;
@@ -48,7 +49,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
-	int windowWidth = 1280, windowHeight = 720,i=0;
+	int windowWidth = 1920, windowHeight = 1080,i=0;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
 		return 1;
@@ -129,6 +130,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	
 	if (frameBufferWidth != renderer.GetViewportWidth() || frameBufferHeight != renderer.GetViewportHeight())
 	{
+		glfwSetWindowAspectRatio(window,1920,1080);
 		// TODO: Set new aspect ratio
 	}
 
@@ -182,18 +184,33 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Open", "CTRL+O"))
+			if (ImGui::MenuItem("Open Model", "CTRL+O"))
 			{
 				nfdchar_t* outPath = NULL;
 				nfdresult_t result = NFD_OpenDialog("obj;", NULL, &outPath);
 				if (result == NFD_OKAY)
 				{
 					scene.AddModel(Utils::LoadMeshModel(outPath));
+
 					//scene.GetActiveModel().printFacesAndVertices();
-					scene.GetActiveModel().TranslateAndScaleVertices();
-					scene.GetActiveModel().CalculateCenters();
-					scene.GetActiveModel().CalculateFacesNormals();
-					scene.GetActiveModel().TranslateAndScaleNormals();
+					free(outPath);
+				}
+				else if (result == NFD_CANCEL)
+				{
+				}
+				else
+				{
+				}
+
+			}
+			if (ImGui::MenuItem("Open Camera", "CTRL+O"))
+			{
+				nfdchar_t* outPath = NULL;
+				nfdresult_t result = NFD_OpenDialog("obj;", NULL, &outPath);
+				if (result == NFD_OKAY)
+				{
+					scene.AddCamera(Utils::LoadCamera(outPath));
+					//scene.GetActiveCamera().printFacesAndVertices();
 					free(outPath);
 				}
 				else if (result == NFD_CANCEL)
@@ -235,8 +252,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Another Window", &show_another_window);
-		ImGui::Checkbox("Transformations Window", &show_transformations_window);
-		ImGui::Checkbox("Show Window", &show_what_to_show_window);
+		ImGui::Checkbox("Model Transformations Window", &show_transformations_window);
+		ImGui::Checkbox("Model Properties Window", &show_what_to_show_window);
+		ImGui::Checkbox("Camera Transformations Window", &show_camera_transformations_window);
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
@@ -250,10 +268,25 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 3. Show another simple window.
-	static float xscale = 1, yscale = 1,zscale=1,ztranslate=0,xtranslate = 0, ytranslate = 0,Anglew=0,Angle=0,xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
+	static float FOV=70.0f,orthow = 20.f, xscale = 1, yscale = 1, zscale = 1, ztranslate = 0, xtranslate = 0, ytranslate = 0, AnglewX = 0, AnglewY = 0, AnglewZ = 0, AngleX = 0, AngleY = 0, AngleZ = 0, xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
 	static glm::vec3 VertexNormalsColor(0.8f,0.8f,0.8f) ;
 	static glm::vec3 FaceNormalsColor(0.8f,0.8f,0.8f) ;
 	static glm::vec3 BoundingBoxColor(0.8f,0.8f,0.8f) ;
+	static float eye[3] = { 0,0,10 };
+	static float at[3] = { 0,0,0 };
+	static float up[3] = { 0,1,0 };
+	if ( scene.GetCameraCount() > 0) {
+		//eye[0]=scene.GetActiveCamera().GetEye().x;
+		//eye[1]=scene.GetActiveCamera().GetEye().y;
+		//eye[2]=scene.GetActiveCamera().GetEye().z;
+		//at[0] = scene.GetActiveCamera().GetAt().x;
+		//at[1] = scene.GetActiveCamera().GetAt().y;
+		//at[2] = scene.GetActiveCamera().GetAt().z;
+		//up[0] = scene.GetActiveCamera().GetUp().x;
+		//up[1] = scene.GetActiveCamera().GetUp().y;
+		//up[2] = scene.GetActiveCamera().GetUp().z;
+	}
+	glm::vec3 lastEye = glm::vec3(eye[0], eye[1], eye[2]);
 	if (show_another_window)
 	{
 		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -296,7 +329,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 	if (show_transformations_window)
 	{
-		ImGui::Begin("Transformations Window", &show_transformations_window);
+		ImGui::Begin("Model Transformations Window", &show_transformations_window);
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
 		{ 
@@ -308,13 +341,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Scale by x", &xscale, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by y", &yscale, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by z", &zscale, 0.0f, 3.0f, "%.5f");
-						if (ImGui::Button("Scale"))
-						{
-							scene.GetActiveModel().ScaleVertices("local", xscale, yscale, zscale);
-						}
+							scene.GetActiveCamera().ScaleVertices("local", xscale, yscale, zscale);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveModel().ResetModel();
+							scene.GetActiveCamera().ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -327,8 +357,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 							xtranslatew = 0;
 							ytranslatew = 0;
 							ztranslatew = 0;
-							Angle = 0;
-							Anglew = 0;
+							AngleX = 0;
+							AngleY = 0;
+							AngleZ = 0;
+							AnglewX = 0;
+							AnglewY = 0;
+							AnglewZ = 0;
 						}
 						ImGui::EndTabItem();
 					}
@@ -336,13 +370,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Translate by x", &xtranslate, 0.0f, 700.0f, "%.0f");
 						ImGui::SliderFloat("Translate by y", &ytranslate, 0.0f, 700.0f, "%.0f");
 						ImGui::SliderFloat("Translate by z", &ztranslate, 0.0f, 700.0f, "%.0f");
-						if (ImGui::Button("Translate"))
-						{
-							scene.GetActiveModel().TranslateVertices("local", xtranslate, ytranslate, ztranslate);
-						}
+						scene.GetActiveCamera().TranslateVertices("local", xtranslate, ytranslate, ztranslate);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveModel().ResetModel();
+							scene.GetActiveCamera().ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -355,29 +386,26 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 							xtranslatew = 0;
 							ytranslatew = 0;
 							ztranslatew = 0;
-							Angle = 0;
-							Anglew = 0;
+							AngleX = 0;
+							AngleY = 0;
+							AngleZ = 0;
+							AnglewX = 0;
+							AnglewY = 0;
+							AnglewZ = 0;
 						}
 						ImGui::EndTabItem();
 					}
 					if (ImGui::BeginTabItem("Rotate"))
 					{
-						ImGui::SliderFloat("Angle of Rotation", &Angle, 0.0f, 360.0f, "%.f");
-						if (ImGui::Button("Rotate By X axis"))
-						{
-							scene.GetActiveModel().RotateModel("local", 0, Angle);
-						}
-						if (ImGui::Button("Rotate By Y axis"))
-						{
-							scene.GetActiveModel().RotateModel("local", 1, Angle );
-						}
-						if (ImGui::Button("Rotate By Z axis"))
-						{
-							scene.GetActiveModel().RotateModel("local", 2, Angle );
-						}
+						ImGui::SliderFloat("Angle of Rotation By X", &AngleX, 0.0f, 360.0f, "%.f");
+						ImGui::SliderFloat("Angle of Rotation By Y", &AngleY, 0.0f, 360.0f, "%.f");
+						ImGui::SliderFloat("Angle of Rotation By Z", &AngleZ, 0.0f, 360.0f, "%.f");
+							scene.GetActiveCamera().RotateModel("local", 0, AngleX);
+							scene.GetActiveCamera().RotateModel("local", 1, AngleY );
+							scene.GetActiveCamera().RotateModel("local", 2, AngleZ );
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveModel().ResetModel();
+							scene.GetActiveCamera().ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -390,8 +418,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 							xtranslatew = 0;
 							ytranslatew = 0;
 							ztranslatew = 0;
-							Angle = 0;
-							Anglew = 0;
+							AngleX = 0;
+							AngleY = 0;
+							AngleZ = 0;
+							AnglewX = 0;
+							AnglewY = 0;
+							AnglewZ = 0;
 						}
 						ImGui::EndTabItem();
 					}
@@ -407,13 +439,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Scale by x", &xscalew, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by y", &yscalew, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by z", &zscalew, 0.0f, 3.0f, "%.5f");
-						if (ImGui::Button("Scale"))
-						{
-							scene.GetActiveModel().ScaleVertices("world", xscalew, yscalew, zscalew);
-						}
+							scene.GetActiveCamera().ScaleVertices("world", xscalew, yscalew, zscalew);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveModel().ResetModel();
+							scene.GetActiveCamera().ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -426,8 +455,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 							xtranslatew = 0;
 							ytranslatew = 0;
 							ztranslatew = 0;
-							Angle = 0;
-							Anglew = 0;
+							AngleX = 0;
+							AngleY = 0;
+							AngleZ = 0;
+							AnglewX = 0;
+							AnglewY = 0;
+							AnglewZ = 0;
 						}
 						ImGui::EndTabItem();
 					}
@@ -435,13 +468,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Translate by x", &xtranslatew, 0.0f, 700.0f, "%.0f");
 						ImGui::SliderFloat("Translate by y", &ytranslatew, 0.0f, 700.0f, "%.0f");
 						ImGui::SliderFloat("Translate by z", &ztranslatew, 0.0f, 700.0f, "%.0f");
-						if (ImGui::Button("Translate"))
-						{
-							scene.GetActiveModel().TranslateVertices("world", xtranslatew, ytranslatew, ztranslatew);
-						}
+							scene.GetActiveCamera().TranslateVertices("world", xtranslatew, ytranslatew, ztranslatew);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveModel().ResetModel();
+							scene.GetActiveCamera().ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -454,29 +484,26 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 							xtranslatew = 0;
 							ytranslatew = 0;
 							ztranslatew = 0;
-							Angle = 0;
-							Anglew = 0;
+							AngleX = 0;
+							AngleY = 0;
+							AngleZ = 0;
+							AnglewX = 0;
+							AnglewY = 0;
+							AnglewZ = 0;
 						}
 						ImGui::EndTabItem();
 					}
 					if (ImGui::BeginTabItem("Rotate"))
 					{
-						ImGui::SliderFloat("Angle of Rotation", &Anglew, 0.0f, 360.0f, "%.f");
-						if (ImGui::Button("Rotate By X axis"))
-						{
-							scene.GetActiveModel().RotateModel("world", 0, Anglew );
-						}
-						if (ImGui::Button("Rotate By Y axis"))
-						{
-							scene.GetActiveModel().RotateModel("world", 1, Anglew );
-						}
-						if (ImGui::Button("Rotate By Z axis"))
-						{
-							scene.GetActiveModel().RotateModel("world", 2, Anglew );
-						}
+						ImGui::SliderFloat("Angle of Rotation By X", &AnglewX, 0.0f, 360.0f, "%.f");
+						ImGui::SliderFloat("Angle of Rotation By Y", &AnglewY, 0.0f, 360.0f, "%.f");
+						ImGui::SliderFloat("Angle of Rotation By Z", &AnglewZ, 0.0f, 360.0f, "%.f");
+							scene.GetActiveCamera().RotateModel("world", 0, AnglewX );
+							scene.GetActiveCamera().RotateModel("world", 1, AnglewY );
+							scene.GetActiveCamera().RotateModel("world", 2, AnglewZ );
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveModel().ResetModel();
+							scene.GetActiveCamera().ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -489,8 +516,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 							xtranslatew = 0;
 							ytranslatew = 0;
 							ztranslatew = 0;
-							Angle = 0;
-							Anglew = 0;
+							AngleX = 0;
+							AngleY = 0;
+							AngleZ = 0;
+							AnglewX = 0;
+							AnglewY = 0;
+							AnglewZ = 0;
 						}
 						ImGui::EndTabItem();
 					}
@@ -501,6 +532,49 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			ImGui::EndTabBar();
 		}
 		ImGui::End();
+	}
+	if (show_camera_transformations_window&&scene.GetCameraCount()>0) {
+		ImGui::Begin("Camera Transformations Window", &show_camera_transformations_window);
+		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
+		{
+			if (ImGui::BeginTabItem("Orthographic")) {
+				ImGui::SliderFloat("Pick Orthographic width", &orthow, 1.f, 20.f);
+				scene.GetActiveCamera().SetWidth(orthow);
+				scene.GetActiveCamera().SetIfOrthographicProjection(1);
+				scene.GetActiveCamera().UpdateProjectionMatrix();
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Perspective")) {
+				ImGui::SliderFloat("Pick Perspective FOV", &FOV, 20.f, 110.f, "%.f");
+				scene.GetActiveCamera().SetIfOrthographicProjection(0);
+				scene.GetActiveCamera().SetFOV(FOV);
+				scene.GetActiveCamera().UpdateProjectionMatrix();
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+		if (ImGui::InputFloat3("Eye", eye, 3))
+		{
+			glm::vec3 eyeVec = glm::vec3(eye[0], eye[1], eye[2]);
+			scene.GetActiveCamera().SetEye(eyeVec);
+			scene.GetActiveCamera().UpdateWorldTransformation(eyeVec - lastEye);
+		}
+
+		if (ImGui::InputFloat3("At", at, 3))
+		{
+			scene.GetActiveCamera().SetAt(glm::vec3(at[0], at[1], at[2]));
+		}
+
+		if (ImGui::InputFloat3("Up", up, 3))
+		{
+			scene.GetActiveCamera().SetUp(glm::vec3(up[0], up[1], up[2]));
+		}
+		if (ImGui::Button("Look At"))
+		{
+			scene.GetActiveCamera().SetCameraLookAt(glm::vec3(eye[0],eye[1],eye[2]), glm::vec3(at[0], at[1], at[2]), glm::vec3(up[0], up[1], up[2]));
+		}
+		   ImGui::End();
 	}
 }
 
