@@ -16,7 +16,6 @@ public:
 	glm::vec3 Camera::GetEye() const;
 	glm::vec3 Camera::GetAt() const;
 	glm::vec3 Camera::GetUp() const;
-	void Camera::UpdateWorldTransformation(glm::vec3 difference);
 	void RotateCam(char* lw, int axis, float angle);
 	void CamTranslateVertices(char* lw, float x, float y, float z);
 	void CamScaleVertices(char* lw, float x, float y, float z);
@@ -30,13 +29,23 @@ public:
 	void SetEye(glm::vec3 e);
 	void SetAt(glm::vec3 a);
 	void SetUp(glm::vec3 u);
+	void RotateCamera(char* lw, int axis, float angle);
+	void TranslateCamera(char* lw, float x, float y, float z);
+	void ScaleCamera(char* lw, float x, float y, float z);
+	void ResetCamera();
 
 private:
 	glm::mat4x4 CamtWorldMatrix;
 	glm::mat4x4 CamrWorldMatrix;
+	glm::mat4x4 CamrWorldMatrixX;
+	glm::mat4x4 CamrWorldMatrixY;
+	glm::mat4x4 CamrWorldMatrixZ;
 	glm::mat4x4 CamsWorldMatrix;
 	glm::mat4x4 CamtLocalMatrix;
 	glm::mat4x4 CamrLocalMatrix;
+	glm::mat4x4 CamrLocalMatrixX;
+	glm::mat4x4 CamrLocalMatrixY;
+	glm::mat4x4 CamrLocalMatrixZ;
 	glm::mat4x4 CamsLocalMatrix;
 	glm::mat4x4 CameraTransformation;
 	glm::mat4x4 projection_transformation_;

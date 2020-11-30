@@ -174,6 +174,29 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 }
 
 void Renderer::DrawFaces(glm::mat4x4 Transformation, MeshModel& mesh) {
+	glm::vec4 v11 = glm::vec4(mesh.GetVertex(0), 1.f);
+	v11 = Transformation * v11;
+	v11.x = v11.x / v11.w;
+	v11.y = v11.y / v11.w;
+	v11.z = v11.z / v11.w;
+	mesh.SetMinX(v11.x);
+	mesh.SetMinX(v11.x);
+	mesh.SetMinX(v11.x);
+	mesh.SetMinY(v11.y);
+	mesh.SetMinY(v11.y);
+	mesh.SetMinY(v11.y);
+	mesh.SetMinZ(v11.z);
+	mesh.SetMinZ(v11.z);
+	mesh.SetMinZ(v11.z);
+	mesh.SetMaxX(v11.x);
+	mesh.SetMaxX(v11.x);
+	mesh.SetMaxX(v11.x);
+	mesh.SetMaxY(v11.y);
+	mesh.SetMaxY(v11.y);
+	mesh.SetMaxY(v11.y);
+	mesh.SetMaxZ(v11.z);
+	mesh.SetMaxZ(v11.z);
+	mesh.SetMaxZ(v11.z);
 	for (int i = 0; i < mesh.GetFacesCount(); i++) {
 		int p1 = mesh.GetFace(i).GetVertexIndex(0);
 		int p2 = mesh.GetFace(i).GetVertexIndex(1);
@@ -188,60 +211,126 @@ void Renderer::DrawFaces(glm::mat4x4 Transformation, MeshModel& mesh) {
 		v1.y = v1.y/v1.w; 
 		v2.y = v2.y/v2.w; 
 		v3.y = v3.y/v3.w; 
-
+		v1.z = v1.z / v1.w;
+		v2.z = v2.z / v2.w;
+		v3.z = v3.z / v3.w;
+		if (v1.x < mesh.GetMinX()){mesh.SetMinX(v1.x);}
+		if (v2.x < mesh.GetMinX()){mesh.SetMinX(v2.x);}
+		if (v3.x < mesh.GetMinX()){mesh.SetMinX(v3.x);}
+		if (v1.y < mesh.GetMinY()){mesh.SetMinY(v1.y);}
+		if (v2.y < mesh.GetMinY()){mesh.SetMinY(v2.y);}
+		if (v3.y < mesh.GetMinY()){mesh.SetMinY(v3.y);}
+		if (v1.z < mesh.GetMinZ()){mesh.SetMinZ(v1.z);}
+		if (v2.z < mesh.GetMinZ()){mesh.SetMinZ(v2.z);}
+		if (v3.z < mesh.GetMinZ()){mesh.SetMinZ(v3.z);}
+		if (v1.x > mesh.GetMaxX()){mesh.SetMaxX(v1.x);}
+		if (v2.x > mesh.GetMaxX()){mesh.SetMaxX(v2.x);}
+		if (v3.x > mesh.GetMaxX()){mesh.SetMaxX(v3.x);}
+		if (v1.y > mesh.GetMaxY()){mesh.SetMaxY(v1.y);}
+		if (v2.y > mesh.GetMaxY()){mesh.SetMaxY(v2.y);}
+		if (v3.y > mesh.GetMaxY()){mesh.SetMaxY(v3.y);}
+		if (v1.z > mesh.GetMaxZ()){mesh.SetMaxZ(v1.z);}
+		if (v2.z > mesh.GetMaxZ()){mesh.SetMaxZ(v2.z);}
+		if (v3.z > mesh.GetMaxZ()){mesh.SetMaxZ(v3.z);}
+		if (v1.z > mesh.GetMaxW()) { mesh.SetMaxW(v1.w); }
+		if (v2.z > mesh.GetMaxW()) { mesh.SetMaxW(v2.w); }
+		if (v3.z > mesh.GetMaxW()) { mesh.SetMaxW(v3.w); }
+		if (v1.z < mesh.GetMinW()) { mesh.SetMinW(v1.w); }
+		if (v2.z < mesh.GetMinW()) { mesh.SetMinW(v2.w); }
+		if (v3.z < mesh.GetMinW()) { mesh.SetMinW(v3.w); }
 		glm::ivec2 point1 = glm::ivec2(v1.x, v1.y );
 		glm::ivec2 point2 = glm::ivec2(v2.x,v2.y );
 		glm::ivec2 point3 = glm::ivec2(v3.x,v3.y );
-		//std::cout << v1.x  << " " << v1.y  <<" "<<v1.z<<" "<<v1.w<< std::endl;
-		//std::cout << v2.x  << " " << v2.y  <<" "<<v2.z<<" "<<v2.w<< std::endl;
-		//std::cout << v3.x  << " " << v3.y  <<" "<<v3.z<<" "<<v3.w<< std::endl;
-		//std::cout <<  v2.w << " " <<  v2.w << std::endl;
-		//std::cout <<  v3.w << " " <<  v3.w << std::endl;
 	    DrawLine(point1, point2, glm::vec3(0, 0, 0));
 		DrawLine(point1, point3, glm::vec3(0, 0, 0));
 		DrawLine(point3, point2, glm::vec3(0, 0, 0));
 	}
+	mesh.CalculateBoundingBox();
 }
 
-void Renderer::DrawVertexNormals(glm::mat4x4 Transformation, MeshModel* mesh) {
-	for (int i = 0; i < mesh->GetFacesCount(); i++) {
-		Face face = mesh->GetFace(i);
+void Renderer::DrawVertexNormals(glm::mat4x4 Transformation, MeshModel& mesh) {
+	for (int i = 0; i < mesh.GetFacesCount(); i++) {
+		Face face = mesh.GetFace(i);
 		int vi1 = face.GetVertexIndex(0);
 		int vi2 = face.GetVertexIndex(1);
 		int vi3 = face.GetVertexIndex(2);
 		int vni1 = face.GetNormalIndex(0);
 		int vni2 = face.GetNormalIndex(1);
 		int vni3 = face.GetNormalIndex(2);
-		glm::vec4 v1 = Transformation * glm::vec4(mesh->GetVertex(vi1 - 1), 1);
-		glm::vec4 v2 = Transformation * glm::vec4(mesh->GetVertex(vi2 - 1), 1);
-		glm::vec4 v3 = Transformation * glm::vec4(mesh->GetVertex(vi3 - 1), 1);
-		glm::vec4 vn1 = glm::vec4(mesh->GetVertexNormal(vni1 - 1), 1);
-		glm::vec4 vn2 = glm::vec4(mesh->GetVertexNormal(vni2 - 1), 1);
-		glm::vec4 vn3 = glm::vec4(mesh->GetVertexNormal(vni3 - 1), 1);
-		DrawLine(glm::ivec2(v1.x / v1.w, v1.y / v1.w), glm::ivec2((vn1.x / vn1.w) + v1.x, (vn1.y / vn1.w) + v1.y), mesh->Get_ShowVertexNormalsColor());
-		DrawLine(glm::ivec2(v2.x / v2.w, v2.y / v2.w), glm::ivec2((vn2.x / vn2.w) + v2.x, (vn2.y / vn2.w) + v2.y), mesh->Get_ShowVertexNormalsColor());
-		DrawLine(glm::ivec2(v3.x / v3.w, v3.y / v3.w), glm::ivec2((vn3.x / vn3.w) + v3.x, (vn3.y / vn3.w) + v3.y), mesh->Get_ShowVertexNormalsColor());
+		glm::vec4 v1 = Transformation * glm::vec4(mesh.GetVertex(vi1 - 1), 1);
+		glm::vec4 v2 = Transformation * glm::vec4(mesh.GetVertex(vi2 - 1), 1);
+		glm::vec4 v3 = Transformation * glm::vec4(mesh.GetVertex(vi3 - 1), 1);
+		v1.x = v1.x / v1.w;
+		v1.y = v1.y / v1.w;
+		v1.z = v1.z / v1.w;
+		v2.x = v2.x / v2.w;
+		v2.y = v2.y / v2.w;
+		v2.z = v2.z / v2.w;
+		v3.x = v3.x / v3.w;
+		v3.y = v3.y / v3.w;
+		v3.z = v3.z / v3.w;
+		glm::vec4 vn1 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni1 - 1), 1);
+		glm::vec4 vn2 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni2 - 1), 1);
+		glm::vec4 vn3 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni3 - 1), 1);
+		DrawLine(glm::ivec2(v1.x , v1.y), glm::ivec2((vn1.x / vn1.w) + v1.x, (vn1.y / vn1.w) + v1.y), mesh.Get_ShowVertexNormalsColor());
+		DrawLine(glm::ivec2(v2.x , v2.y), glm::ivec2((vn2.x / vn2.w) + v2.x, (vn2.y / vn2.w) + v2.y), mesh.Get_ShowVertexNormalsColor());
+		DrawLine(glm::ivec2(v3.x , v3.y), glm::ivec2((vn3.x / vn3.w) + v3.x, (vn3.y / vn3.w) + v3.y), mesh.Get_ShowVertexNormalsColor());
 	}
 }
 
-void Renderer::DrawFaceNormals(MeshModel* mesh) {
-	for (int i = 0; i < mesh->GetFacesCount(); i++) {
-		glm::vec3 v1 = mesh->GetCenter(i), v4 = mesh->GetNormal(i);
+void Renderer::DrawFaceNormals(glm::mat4x4 Transformation,MeshModel& mesh) {
+	for (int i = 0; i < mesh.GetFacesCount(); i++) {
+		glm::vec4 v1 = glm::vec4(mesh.GetCenter(i),1), v4 = glm::vec4(mesh.GetNormal(i),1);
+		v4 = Transformation * v4;
+		v4.x = v4.x / v4.w;
+		v4.y = v4.y / v4.w;
+		v4.z = v4.z / v4.w;
+		v1 = Transformation * v1;
+		v1.x = v1.x / v1.w;
+		v1.y = v1.y / v1.w;
+		v1.z = v1.z / v1.w;
 		glm::ivec2 point1 = glm::ivec2(v1[0], v1[1]);
 		glm::ivec2 point4 = glm::ivec2(v4[0], v4[1]);
-		DrawLine(point4, point1, mesh->Get_ShowFaceNormalsColor());
+		DrawLine(point4, point1, mesh.Get_ShowFaceNormalsColor());
 	}
 }
 
-void Renderer::DrawBoundingBox(MeshModel* mesh) {
-	glm::ivec2 point1 = glm::ivec2(mesh->GetVOfBoundingBox(0).x, mesh->GetVOfBoundingBox(0).y);
-	glm::ivec2 point2 = glm::ivec2(mesh->GetVOfBoundingBox(1).x, mesh->GetVOfBoundingBox(1).y);
-	glm::ivec2 point3 = glm::ivec2(mesh->GetVOfBoundingBox(2).x, mesh->GetVOfBoundingBox(2).y);
-	glm::ivec2 point4 = glm::ivec2(mesh->GetVOfBoundingBox(3).x, mesh->GetVOfBoundingBox(3).y);
-	DrawLine(point1, point2, mesh->Get_ShowBoundingBoxColor());
-	DrawLine(point1, point3, mesh->Get_ShowBoundingBoxColor());
-	DrawLine(point4, point2, mesh->Get_ShowBoundingBoxColor());
-	DrawLine(point3, point4, mesh->Get_ShowBoundingBoxColor());
+void Renderer::DrawBoundingBox(Camera& mesh) {
+	glm::vec4 v1 = mesh.GetVOfBoundingBox(0), v2 = mesh.GetVOfBoundingBox(1), v3 = mesh.GetVOfBoundingBox(2), v4 = mesh.GetVOfBoundingBox(3);
+	glm::vec4 v5 = mesh.GetVOfBoundingBox(4), v6 = mesh.GetVOfBoundingBox(5), v7 = mesh.GetVOfBoundingBox(6), v8 = mesh.GetVOfBoundingBox(7);
+	//std::cout << v3.y << std::endl;
+	glm::ivec2 point1 = glm::ivec2(v1.x, v1.y);
+	glm::ivec2 point2 = glm::ivec2(v2.x, v2.y);
+	glm::ivec2 point3 = glm::ivec2(v3.x, v3.y);
+	glm::ivec2 point4 = glm::ivec2(v4.x, v4.y);
+	glm::ivec2 point5;
+	glm::ivec2 point6;
+	glm::ivec2 point7;
+	glm::ivec2 point8;
+	if (mesh.GetIfOrthographicProjection()) {
+		point5 = glm::ivec2(v5.x , v5.y);
+		point6 = glm::ivec2(v6.x , v6.y);
+		point7 = glm::ivec2(v7.x , v7.y);
+		point8 = glm::ivec2(v8.x , v8.y);
+	}
+	else {
+		point5 = glm::ivec2(v5.x / v5.z, v5.y / v5.z);
+		point6 = glm::ivec2(v6.x / v6.z, v6.y / v6.z);
+		point7 = glm::ivec2(v7.x / v7.z, v7.y / v7.z);
+		point8 = glm::ivec2(v8.x / v8.z, v8.y / v8.z);
+	}
+	DrawLine(point1, point2, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point1, point3, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point4, point2, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point3, point4, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point5, point6, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point5, point7, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point8, point6, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point7, point8, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point1, point5, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point2, point6, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point3, point7, mesh.Get_ShowBoundingBoxColor());
+	DrawLine(point4, point8, mesh.Get_ShowBoundingBoxColor());
 }
 
 void Renderer::CreateBuffers(int w, int h)
@@ -390,22 +479,17 @@ void Renderer::Render(Scene& scene)
 		glm::mat4x4 CamTransformation = cam.GetViewTransformation();
 		glm::mat4x4 LookAt = cam.GetCameraLookAt();
 		glm::mat4x4 ViewPort = glm::mat4x4(w / 2, 0, 0, 0, 0, h / 2, 0, 0, 0, 0, 1, 0, w / 2, h / 2, 0, 1);
+		glm::mat4x4 ViewT = cam.GetViewTransformation();
 		glm::mat4x4 Projection = cam.GetProjectionTransformation();
 		glm::mat4x4 ModelTransformation = cam.GetTransformation();
-		glm::mat4x4 t = ViewPort * Projection * LookAt*ModelTransformation ;
+		glm::mat4x4 World = cam.GetWorldTransformation();
+		glm::mat4x4 t = ViewPort * Projection * glm::inverse(ViewT) * LookAt*ModelTransformation ;
 		DrawFaces(t, cam);
+		if(cam.Get_ShowBoundingBox())DrawBoundingBox(cam);
+		if (cam.Get_ShowFaceNormals())DrawFaceNormals(t, cam);
+		if (cam.Get_ShowVertexNormals())DrawVertexNormals(t, cam);
 	}
 
-
-	if (scene.GetModelCount() > 0) {
-		auto mesh = &scene.GetActiveModel();
-		auto mesh1 = scene.GetActiveModel();
-		glm::mat4x4 t = mesh->GetTransformation();
-		if (mesh->Get_ShowFaceNormals())DrawFaceNormals(mesh);
-		if (mesh->Get_ShowBoundingBox()) DrawBoundingBox(mesh);
-		if (mesh->Get_ShowVertexNormals()) DrawVertexNormals(t, mesh);
-		DrawFaces(t, mesh1);
-	}
     ///////////////////////////////this loop test Bresenham's algorithm
 	//for (int i = 0; i <= steps; i++) {
 	//	glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));

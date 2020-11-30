@@ -15,9 +15,9 @@ public:
 	int GetViewportHeight() const;
 	glm::mat4x4 Renderer::GetViewPortTransformation();
 	void DrawFaces(glm::mat4x4 Transformation, MeshModel& mesh);
-	void DrawVertexNormals(glm::mat4x4 Transformation, MeshModel* mesh);
-	void DrawFaceNormals(MeshModel* mesh);
-	void DrawBoundingBox(MeshModel* mesh);
+	void DrawVertexNormals(glm::mat4x4 Transformation, MeshModel& mesh);
+	void DrawFaceNormals(glm::mat4x4 Transformation, MeshModel& mesh);
+	void DrawBoundingBox(Camera& mesh);
 private:
 	void PutPixel(const int i, const int j, const glm::vec3& color);
 	void DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);

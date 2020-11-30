@@ -21,6 +21,7 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	rXWorldMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	rYWorldMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	rZWorldMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	rLocalMatrix=rWorldMatrix= glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	Transformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	LocalTransformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	WorldTransformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -31,9 +32,8 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	 ShowFaceNormalsColor= glm::vec3(0.8f, 0.8f, 0.8f);
 	 ShowBoundingBoxColor= glm::vec3(0.8f, 0.8f, 0.8f);
 	//this->TranslateAndScaleVertices();
-	//this->CalculateCenters();
-	//this->CalculateFacesNormals();
-	//this->TranslateAndScaleNormals();
+	this->CalculateCenters();
+	this->CalculateFacesNormals();
 }
 
 MeshModel::~MeshModel()
@@ -97,10 +97,10 @@ void MeshModel::CalculateFacesNormals() {
 		int p1 = this->GetFace(i).GetVertexIndex(0);
 		int p2 = this->GetFace(i).GetVertexIndex(1);
 		int p3 = this->GetFace(i).GetVertexIndex(2);
-		glm::vec3 v1 = this->GetTransformedVertex(p1 - 1), v2 = this->GetTransformedVertex(p2 - 1), v3 = this->GetTransformedVertex(p3 - 1);
+		glm::vec3 v1 = this->GetVertex(p1 - 1), v2 = this->GetVertex(p2 - 1), v3 = this->GetVertex(p3 - 1);
 		glm::vec3 n =glm::normalize(glm::cross(glm::vec3(v2-v1),glm::vec3(v3-v1)));
 		glm::vec4 v(n.x, n.y, n.z, 1);
-		v = glm::scale(glm::vec3(40, 40, 40)) * v;
+		v = glm::scale(glm::vec3(0.5, 0.5, 0.5)) * v;
 		n.x = v.x / v.w;
 		n.y = v.y / v.w;
 		n.z = v.z / v.w;
@@ -212,17 +212,29 @@ void MeshModel::ResetModel() {
 		for (int j = 0; j < 4; j++) {
 			tWorldMatrix[i][j] = 0;
 			rWorldMatrix[i][j] = 0;
+			rXWorldMatrix[i][j] = 0;
+			rYWorldMatrix[i][j] = 0;
+			rZWorldMatrix[i][j] = 0;
 			sWorldMatrix[i][j] = 0;
 			tLocalMatrix[i][j] = 0;
 			rLocalMatrix[i][j] = 0;
+			rXLocalMatrix[i][j] = 0;
+			rYLocalMatrix[i][j] = 0;
+			rZLocalMatrix[i][j] = 0;
 			sLocalMatrix[i][j] = 0;
 			Transformation[i][j] =0;
 			if (i == j) {
 				tWorldMatrix[i][j] = 1;
 				rWorldMatrix[i][j] = 1;
+				rXWorldMatrix[i][j] = 1;
+				rYWorldMatrix[i][j] = 1;
+				rZWorldMatrix[i][j] = 1;
 				sWorldMatrix[i][j] = 1;
 				tLocalMatrix[i][j] = 1;
 				rLocalMatrix[i][j] = 1;
+				rXLocalMatrix[i][j] = 1;
+				rYLocalMatrix[i][j] = 1;
+				rZLocalMatrix[i][j] = 1;
 				sLocalMatrix[i][j] = 1;
 				Transformation[i][j] = 1;
 			}
@@ -233,10 +245,6 @@ void MeshModel::ResetModel() {
 	ShowBoundingBox = 0;
 	Transformedvertices_ = vertices_;
 	Transformednormals_ = normals_;
-	CalculateBoundingBox();
-	CalculateCenters();
-	CalculateFacesNormals();
-
 }
 
 void MeshModel::TranslateVertices(char * lw,float x,float y,float z) {
@@ -266,27 +274,6 @@ void MeshModel::Transform() {
 	rWorldMatrix = rXWorldMatrix * rYWorldMatrix * rZWorldMatrix;
 	rLocalMatrix= rXLocalMatrix * rYLocalMatrix * rZLocalMatrix;
 	Transformation =  sWorldMatrix * rXWorldMatrix*rYWorldMatrix*rZWorldMatrix * tWorldMatrix *sLocalMatrix * tLocalMatrix *rXLocalMatrix*rYLocalMatrix*rZLocalMatrix;
-	//for (int k = 0; k < vertices_.size(); k++) {
-	//	temp = glm::vec4(vertices_[k][0], vertices_[k][1], vertices_[k][2], 1);
-	//	temp = Transformation *temp;
-	//	Transformedvertices_[k].x = temp.x/temp.w; 
-	//	Transformedvertices_[k].y = temp.y / temp.w;
-	//	Transformedvertices_[k].z = temp.z/temp.w;
-	//}
-	//maxX = minX = Transformedvertices_[0].x;
-	//maxY = minY = Transformedvertices_[0].y;
-	//maxZ = minZ = Transformedvertices_[0].z;
-	//for (int i = 1; i < vertices_.size(); i++) {
-	//	if (Transformedvertices_[i].x > maxX)maxX = Transformedvertices_[i].x;
-	//	if (Transformedvertices_[i].y > maxY)maxY = Transformedvertices_[i].y;
-	//	if (Transformedvertices_[i].z > maxZ)maxZ = Transformedvertices_[i].z;
-	//	if (Transformedvertices_[i].x < minX)minX = Transformedvertices_[i].x;
-	//	if (Transformedvertices_[i].y < minY)minY = Transformedvertices_[i].y;
-	//	if (Transformedvertices_[i].z < minZ)minZ = Transformedvertices_[i].z;
-	//}
-	//CalculateBoundingBox();
-	//CalculateCenters();
-	//this->CalculateFacesNormals();
 }
 
 glm::vec3 MeshModel::GetVertex(int index)const {
@@ -302,7 +289,7 @@ glm::vec3 MeshModel::GetNormal(int index)const {
 }
 
 glm::vec3 MeshModel::GetVertexNormal(int index)const {
-	return Transformednormals_[index];
+	return normals_[index];
 }
 
 void MeshModel::RotateModel(char * lw,int axis, float angle) {
@@ -342,30 +329,18 @@ void MeshModel::RotateModel(char * lw,int axis, float angle) {
 }
 
 void MeshModel::CalculateBoundingBox() {
-	maxX = minX = Transformedvertices_[0].x;
-	maxY = minY = Transformedvertices_[0].y;
-	maxZ = minZ = Transformedvertices_[0].z;
-	for (int i = 1; i < vertices_.size(); i++) {
-		if (Transformedvertices_[i].x > maxX)maxX = Transformedvertices_[i].x;
-		if (Transformedvertices_[i].y > maxY)maxY = Transformedvertices_[i].y;
-		if (Transformedvertices_[i].z > maxZ)maxZ = Transformedvertices_[i].z;
-		if (Transformedvertices_[i].x < minX)minX = Transformedvertices_[i].x;
-		if (Transformedvertices_[i].y < minY)minY = Transformedvertices_[i].y;
-		if (Transformedvertices_[i].z < minZ)minZ = Transformedvertices_[i].z;
-	}
 	BoundingBox.clear();
-	BoundingBox.push_back(glm::vec3(minX, minY, minZ));
-	BoundingBox.push_back(glm::vec3(maxX, minY, minZ));
-	BoundingBox.push_back(glm::vec3(minX, maxY, minZ));
-	BoundingBox.push_back(glm::vec3(maxX, maxY, minZ));
-	BoundingBox.push_back(glm::vec3(minX, minY, maxZ));
-	BoundingBox.push_back(glm::vec3(maxX, minY, maxZ));
-	BoundingBox.push_back(glm::vec3(minX, maxY, maxZ));
-	BoundingBox.push_back(glm::vec3(maxX, maxY, maxZ));
-	
+	BoundingBox.push_back(glm::vec4(minX, minY, minZ,maxW));
+	BoundingBox.push_back(glm::vec4(maxX, minY, minZ,maxW));
+	BoundingBox.push_back(glm::vec4(minX, maxY, minZ,maxW));
+	BoundingBox.push_back(glm::vec4(maxX, maxY, minZ,maxW));
+	BoundingBox.push_back(glm::vec4(minX, minY, maxZ,maxW));
+	BoundingBox.push_back(glm::vec4(maxX, minY, maxZ,maxW));
+	BoundingBox.push_back(glm::vec4(minX, maxY, maxZ,maxW));
+	BoundingBox.push_back(glm::vec4(maxX, maxY, maxZ,maxW));
 }
 
-glm::vec3 MeshModel::GetVOfBoundingBox(int i) {
+glm::vec4 MeshModel::GetVOfBoundingBox(int i) {
 	return BoundingBox[i];
 }
 
@@ -375,7 +350,7 @@ void MeshModel::CalculateCenters() {
 		int p1 = this->GetFace(i).GetVertexIndex(0);
 		int p2 = this->GetFace(i).GetVertexIndex(1);
 		int p3 = this->GetFace(i).GetVertexIndex(2);
-		glm::vec3 v1 = this->GetTransformedVertex(p1 - 1), v2 = this->GetTransformedVertex(p2 - 1), v3 = this->GetTransformedVertex(p3 - 1);
+		glm::vec3 v1 = this->GetVertex(p1 - 1), v2 = this->GetVertex(p2 - 1), v3 = this->GetVertex(p3 - 1);
 		float x = ((v1.x + v2.x + v3.x) / 3);
 		float y = ((v1.y + v2.y + v3.y) / 3);
 		float z = ((v1.z + v2.z + v3.z) / 3);
@@ -459,3 +434,44 @@ std::vector<glm::vec3> MeshModel::GetNormals() {
 glm::mat4x4 MeshModel::GetTransformation() {
 	return Transformation;
 }
+
+void MeshModel::SetMinX(float x) {
+	minX = x;
+}
+
+void MeshModel::SetMinY(float y) {
+	minY = y;
+}
+
+void MeshModel::SetMinZ(float z) {
+	minZ = z;
+}
+
+void MeshModel::SetMaxX(float x) {
+	maxX = x;
+}
+
+void MeshModel::SetMaxY(float y) {
+	maxY = y;
+}
+
+void MeshModel::SetMaxZ(float z) {
+	maxZ = z;
+}
+
+void MeshModel::SetMinW(float w) {
+	minW = w;
+}
+
+void MeshModel::SetMaxW(float w) {
+	maxW = w;
+}
+
+float MeshModel::GetMinX() {return minX;}
+float MeshModel::GetMinY() {return minY;}
+float MeshModel::GetMinZ() {return minZ;}
+float MeshModel::GetMaxX() {return maxX;}
+float MeshModel::GetMaxY() {return maxY;}
+float MeshModel::GetMaxZ() {return maxZ;}
+float MeshModel::GetMinW() {return minW;}
+float MeshModel::GetMaxW() {return maxW;}

@@ -26,7 +26,7 @@ public:
 	void TranslateAndScaleNormals();
 	void CalculateBoundingBox();
 	void CalculateCenters();
-	glm::vec3 GetVOfBoundingBox(int i);
+	glm::vec4 GetVOfBoundingBox(int i);
 	glm::vec3 MeshModel::GetCenter(int i)const;
 	glm::vec3 MeshModel::GetVertexNormal(int index)const;
 	int GetVerticesCount()const;
@@ -48,12 +48,28 @@ public:
 	std::vector<glm::vec3> GetNormals();
 	glm::mat4x4 MeshModel::GetTransformation();
 	glm::vec3 MeshModel::GetTransformedVertex(int index)const;
+	void SetMinX(float x);
+	void SetMinY(float y);
+	void SetMinZ(float z);
+	void SetMaxX(float x);
+	void SetMaxY(float y);
+	void SetMaxZ(float z);
+	void SetMinW(float w);
+	void SetMaxW(float w);
+	float MeshModel::GetMinX();
+	float MeshModel::GetMinY();
+	float MeshModel::GetMinZ();
+	float MeshModel::GetMaxX();
+	float MeshModel::GetMaxY();
+	float MeshModel::GetMaxZ();
+	float MeshModel::GetMinW();
+	float MeshModel::GetMaxW();
 protected:
 	std::vector<Face> faces_;
 	std::vector<glm::vec3> vertices_;
 	std::vector<glm::vec3> normals_;
 	std::vector<glm::vec3> Facesnormals_;
-	std::vector<glm::vec3> BoundingBox;
+	std::vector<glm::vec4> BoundingBox;
 	std::vector<glm::vec3> Transformedvertices_;
 	std::vector<glm::vec3> Transformednormals_;
 	std::vector<glm::vec3> Centers;
@@ -79,6 +95,8 @@ protected:
 	float maxX=0;
 	float maxY=0;
 	float maxZ=0;
+	float minW=0;
+	float maxW=0;
 	bool ShowVertexNormals;
 	bool ShowFaceNormals;
 	bool ShowBoundingBox;
