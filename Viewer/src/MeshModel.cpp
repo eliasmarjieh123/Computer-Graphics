@@ -25,6 +25,7 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	Transformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	LocalTransformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	WorldTransformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	ModelScale = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	ShowVertexNormals=0;
 	ShowFaceNormals=0;
 	ShowBoundingBox=0;
@@ -34,6 +35,16 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	//this->TranslateAndScaleVertices();
 	this->CalculateCenters();
 	this->CalculateFacesNormals();
+	int i = 0;
+	while (i < faces_.size()) {
+		glm::vec3 color;
+		color.x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
+		color.y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
+		color.z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
+		//std::cout << color.x << " " << color.y << " " << color.z << std::endl;
+		FacesColors.push_back(color);
+		i++;
+	}
 }
 
 MeshModel::~MeshModel()
@@ -475,3 +486,16 @@ float MeshModel::GetMaxY() {return maxY;}
 float MeshModel::GetMaxZ() {return maxZ;}
 float MeshModel::GetMinW() {return minW;}
 float MeshModel::GetMaxW() {return maxW;}
+
+void MeshModel::ScaleModel(float scale) {
+	ModelScale = glm::scale(glm::vec3(scale, scale, scale));
+}
+
+glm::mat4x4 MeshModel::GetModelScale() {
+	return ModelScale;
+}
+
+glm::vec3 MeshModel::GetFaceColor(int i) {
+	return FacesColors[i];
+}
+

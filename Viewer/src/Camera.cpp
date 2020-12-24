@@ -13,8 +13,8 @@ Camera::Camera(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::ve
 	left_ = -100;
 	top_ = 100;
 	bottom_ = -100;
-	near_ = 0.100000f;// 100;//100;
-	far_ =-1000.00000f;// -100;//-100;
+	near_ = 0.1f;// 100;//100;
+	far_ =-1000.f;// -100;//-100;
 	fovy_ = glm::radians(70.0f);
 	startingRight_ = 100;
 	startingLeft_ = -100;
@@ -32,10 +32,11 @@ Camera::Camera(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::ve
 	startingAt_ = glm::vec3(0, 0, 0);
 	startingUp_ = glm::vec3(0, 1, 0);
 	LookAtMat_=CamrLocalMatrix=CamtLocalMatrix=CamsLocalMatrix=CamrWorldMatrix=CamtWorldMatrix=CamsWorldMatrix= CameraTransformation = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	SetWorldTransform(glm::mat4x4(1,0,0,0,0,1,0,0,0,0,1,0,eye_.x, eye_.y, eye_.z,1) ,glm::mat4x4(1,0,0,0, 0,1,0,0, 0,0,1,0,0,0,0,1));
+	//SetWorldTransform(glm::mat4x4(1,0,0,0,0,1,0,0,0,0,1,0,eye_.x, eye_.y, eye_.z,1) ,glm::mat4x4(1,0,0,0, 0,1,0,0, 0,0,1,0,0,0,0,1));
 	lastEye = eye_;
 	zooming_ = 1;
 	width = 20.000f;
+	height_ = width / ascpectRatio;
 	projection_transformation_ = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	CamrLocalMatrixX=CamrLocalMatrixY=CamrLocalMatrixZ=CamrWorldMatrixX=CamrWorldMatrixY=CamrWorldMatrixZ= glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	UpdateProjectionMatrix();

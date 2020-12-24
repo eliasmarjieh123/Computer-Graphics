@@ -4,6 +4,9 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/normal.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include "glm/gtc/matrix_transform.hpp"
+#include <glm/gtx/transform.hpp>
 #include "Renderer.h"
 #include "InitShader.h"
 #include <iostream>
@@ -241,11 +244,102 @@ void Renderer::DrawFaces(glm::mat4x4 Transformation, MeshModel& mesh) {
 		glm::ivec2 point1 = glm::ivec2(v1.x, v1.y );
 		glm::ivec2 point2 = glm::ivec2(v2.x,v2.y );
 		glm::ivec2 point3 = glm::ivec2(v3.x,v3.y );
-	    DrawLine(point1, point2, glm::vec3(0, 0, 0));
-		DrawLine(point1, point3, glm::vec3(0, 0, 0));
-		DrawLine(point3, point2, glm::vec3(0, 0, 0));
+	    DrawLine(point1, point2, mesh.GetFaceColor(i));
+		DrawLine(point1, point3, mesh.GetFaceColor(i));
+		DrawLine(point3, point2, mesh.GetFaceColor(i));
 	}
 	mesh.CalculateBoundingBox();
+}
+
+bool Renderer::CheckIfLastFaceFromRight(int x, int y,int maxx) {
+	while (x <= maxx) {
+		if ((color_buffer_[INDEX(viewport_width_, x , y, 0)] != 1.0f ||
+			color_buffer_[INDEX(viewport_width_, x , y, 1)] != 1.0f ||
+			color_buffer_[INDEX(viewport_width_, x , y, 2)] != 1.0f)) {
+			return 1;
+		}
+		x++;
+	}
+	return 0;
+}
+
+bool Renderer::PointInTriangle(int x,int y )
+{
+	if ((color_buffer_[INDEX(viewport_width_, x-1, y, 0)] != 1.0f ||
+		color_buffer_[INDEX(viewport_width_, x-1, y, 1)] != 1.0f ||
+		color_buffer_[INDEX(viewport_width_, x-1, y, 2)] != 1.0f)&& 
+		(color_buffer_[INDEX(viewport_width_, x + 1, y, 0)] == 1.0f &&
+		color_buffer_[INDEX(viewport_width_, x + 1, y, 1)] == 1.0f &&
+		color_buffer_[INDEX(viewport_width_, x + 1, y, 2)] == 1.0f
+		)) {
+		return 1;
+	}
+	return 0;
+}
+
+void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 color) {
+	int minx, miny, maxy, maxx, tempx, flag, v = 2;
+	//maxx = v1.x >= v2.x ? v1.x : v2.x;
+	//maxx = maxx >= v3.x ? maxx : v3.x;
+	//maxy = v1.y >= v2.y ? v1.y : v2.y;
+	//maxy = maxy >= v3.y ? maxy : v3.y;
+	//minx = v1.x <= v2.x ? v1.x : v2.x;
+	//minx = minx <= v3.x ? minx : v3.x;
+	//miny = v1.y <= v2.y ? v1.y : v2.y;
+	//miny = miny <= v3.y ? miny : v3.y;
+	maxx = std::max(v1.x, std::max(v2.x, v3.x));
+	maxy = std::max(v1.y, std::max(v2.y, v3.y));
+	minx = std::min(v1.x, std::min(v2.x, v3.x));
+	miny = std::min(v1.y, std::min(v2.y, v3.y));
+	while (miny <= maxy) {
+		tempx = minx;
+		while (tempx <= maxx) {
+			//if (PointInTriangle(tempx, miny) && CheckIfLastFaceFromRight(tempx, miny, maxx)) {
+			if(PointInTriangle(glm::vec3(tempx,miny,0),v1,v2,v3)){
+				float Z= CalculateZ(glm::vec3(tempx, miny, 0), v1, v2, v3);
+				if (Z < Z_buffer_[(miny) * viewport_width_ + tempx]) {
+					if (minz > Z)minz = Z;
+					if (maxz < Z)maxz = Z;
+					Z_buffer_[(miny)*viewport_width_ + tempx] = Z;
+					PutPixel(tempx, miny, color);
+				}
+			}
+			tempx++;
+		}
+		miny++;
+	}
+}
+
+void Renderer::DrawFaces2(glm::mat4x4 Transformation,glm::mat4x4 view, MeshModel& mesh,bool ortho) {
+	for (int i = 0; i < mesh.GetFacesCount(); i++) {
+		int p1 = mesh.GetFace(i).GetVertexIndex(0);
+		int p2 = mesh.GetFace(i).GetVertexIndex(1);
+		int p3 = mesh.GetFace(i).GetVertexIndex(2);
+		glm::vec4 v1 = glm::vec4(mesh.GetVertex(p1 - 1), 1.f), v2 = glm::vec4(mesh.GetVertex(p2 - 1), 1.f), v3 = glm::vec4(mesh.GetVertex(p3 - 1), 1.f);
+		v1 = Transformation * v1;
+		v2 = Transformation * v2;
+		v3 = Transformation * v3;
+		v1 = view * v1;
+		v2 = view * v2;
+		v3 = view * v3;
+		v1.x = v1.x / v1.w;
+		v2.x = v2.x / v2.w;
+		v3.x = v3.x / v3.w;
+		v1.y = v1.y / v1.w;
+		v2.y = v2.y / v2.w;
+		v3.y = v3.y / v3.w;
+		if (ortho) {
+			v1.z = -v1.z / v1.w;
+			v2.z = -v2.z / v2.w;
+			v3.z = -v3.z / v3.w;
+		}
+		else {
+			v1.z = v1.z / v1.w;
+			v2.z = v2.z / v2.w;
+			v3.z = v3.z / v3.w;
+		}
+		FillTriangle(v1, v2, v3,mesh.GetFaceColor(i));
+	}
 }
 
 void Renderer::DrawVertexNormals(glm::mat4x4 Transformation, MeshModel& mesh) {
@@ -337,7 +431,9 @@ void Renderer::CreateBuffers(int w, int h)
 {
 	CreateOpenGLBuffer(); //Do not remove this line.
 	color_buffer_ = new float[3 * w * h];
+	Z_buffer_ = new float[ w * h];
 	ClearColorBuffer(glm::vec3(0.0f, 0.0f, 0.0f));
+	ClearZbuffer(w, h);
 }
 
 //##############################
@@ -464,6 +560,15 @@ void Renderer::ClearColorBuffer(const glm::vec3& color)
 	}
 }
 
+void Renderer::ClearZbuffer(int w,int h) {
+	for (int i = 0; i < h; i++)
+		for (int j = 0; j < w; j++)
+			Z_buffer_[i * w + j] =1.0f;
+
+	minz = FLT_MAX;
+	maxz = FLT_MIN;
+}
+
 void Renderer::Render(Scene& scene)
 {
 	// TODO: Replace this code with real scene rendering code
@@ -474,17 +579,26 @@ void Renderer::Render(Scene& scene)
 	float angle = 2.f * PI / steps;
 	float w =float( GetViewportWidth());
 	float h = float(GetViewportHeight());
+	ClearZbuffer(w,h);
 	if (scene.GetCameraCount()>0) {
 		Camera cam = scene.GetActiveCamera();
 		glm::mat4x4 CamTransformation = cam.GetViewTransformation();
 		glm::mat4x4 LookAt = cam.GetCameraLookAt();
-		glm::mat4x4 ViewPort = glm::mat4x4(w / 2, 0, 0, 0, 0, h / 2, 0, 0, 0, 0, 1, 0, w / 2, h / 2, 0, 1);
+		glm::mat4x4 ViewPort = glm::scale(glm::vec3(half_width,half_height,1))*glm::translate(glm::vec3(1,1,1));
+		if (!cam.GetIfOrthographicProjection()) {
+			ViewPort = glm::scale(glm::vec3(half_width, half_height, 1)) * glm::translate(glm::vec3(1, 1, 0));
+		}
 		glm::mat4x4 ViewT = cam.GetViewTransformation();
 		glm::mat4x4 Projection = cam.GetProjectionTransformation();
 		glm::mat4x4 ModelTransformation = cam.GetTransformation();
 		glm::mat4x4 World = cam.GetWorldTransformation();
-		glm::mat4x4 t = ViewPort * Projection * glm::inverse(ViewT) * LookAt*ModelTransformation ;
-		DrawFaces(t, cam);
+		glm::mat4x4 Scale = cam.GetModelScale();
+		glm::mat4x4 t =  Projection  * LookAt * glm::inverse(ViewT) *ModelTransformation*Scale;
+		float height_ = 20.0f / 1.7777f;
+		//t= glm::ortho(-20.0f / 2, 20.0f / 2, - height_ / 2, height_ / 2, 0.1f, -1000.f)* glm::lookAt(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0))* glm::inverse(ViewT) * ModelTransformation;
+		//DrawFaces(t, cam);
+		DrawFaces2(t,ViewPort, cam, cam.GetIfOrthographicProjection());
+		//ZBufferGrayscale();
 		if(cam.Get_ShowBoundingBox())DrawBoundingBox(cam);
 		if (cam.Get_ShowFaceNormals())DrawFaceNormals(t, cam);
 		if (cam.Get_ShowVertexNormals())DrawVertexNormals(t, cam);
@@ -542,4 +656,64 @@ int Renderer::GetViewportHeight() const
 glm::mat4x4 Renderer::GetViewPortTransformation()
 {
 	return glm::mat4x4(GetViewportWidth()/2,0,0,0,0,GetViewportHeight()/2,0,0,0,0,1,0,(GetViewportWidth()-1)/2,(GetViewportHeight()-1)/2,0,1);
+}
+
+float Renderer::CalculateZ(glm::vec3 p,glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
+	float A , A1 = CalcArea(p, v2, v3), A2 = CalcArea(p, v1, v3), A3 = CalcArea(p, v1, v2);
+	A = A1 + A2 + A3;
+	return ((A1 / A * v1.z) + (A2 / A * v2.z) + (A3 / A * v3.z));
+}
+
+void Renderer::ZBufferGrayscale()
+{
+	float color = 0.f, a = 1 / (maxz - minz), b = -a * minz;
+	//std::cout << minz << std::endl;
+	//std::cout << maxz << std::endl;
+	//std::cout <<  std::endl;
+	for (int i = 0; i < viewport_height_; i++)
+	{
+		for (int j = 0; j < viewport_width_; j++)
+		{
+			if ((color_buffer_[INDEX(viewport_width_, j, i, 0)] != 1.0f ||
+				color_buffer_[INDEX(viewport_width_, j, i, 1)] != 1.0f ||
+				color_buffer_[INDEX(viewport_width_, j, i, 2)] != 1.0f))
+			{
+				color = a * Z_buffer_[i * viewport_width_ + j] + b;
+				color =  color;
+				//std::cout << color << std::endl;
+				PutPixel(j, i, glm::vec3(color,color,color));
+			}
+			else
+				PutPixel(j, i, glm::vec3(0.0f,0.0f,0.0f));
+		}
+	}
+}
+
+float Renderer::CalcArea(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
+	return abs((v1.x * (v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v2.y - v1.y)) / 2.0f);
+}
+
+ bool Renderer::PointInTriangle(glm::vec3 p, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
+{
+	//float s = p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y;
+	//float t = p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y;
+	//
+	//if ((s < 0) != (t < 0))
+	//	return false;
+	//
+	//float A = -p1.y * p2.x + p0.y * (p2.x - p1.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y;
+	//
+	//return A < 0 ?
+	//	(s < 0 && s + t > A) :
+	//	(s > 0 && s + t < A);
+	 auto dX = p.x - p3.x;
+	 auto dY = p.y - p3.y;
+	 auto dX21 = p3.x - p2.x;
+	 auto dY12 = p2.y - p3.y;
+	 auto D = dY12 * (p1.x - p3.x) + dX21 * (p1.y - p3.y);
+	 auto s = dY12 * dX + dX21 * dY;
+	 auto t = (p3.y - p1.y) * dX + (p1.x - p3.x) * dY;
+	 if (D < 0) return s <= 0 && t <= 0 && s + t >= D;
+	 return s >= 0 && t >= 0 && s + t <= D;
+
 }

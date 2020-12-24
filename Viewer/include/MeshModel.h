@@ -64,6 +64,9 @@ public:
 	float MeshModel::GetMaxZ();
 	float MeshModel::GetMinW();
 	float MeshModel::GetMaxW();
+	void ScaleModel(float scale);
+	glm::mat4x4 MeshModel::GetModelScale();
+	glm::vec3 MeshModel::GetFaceColor(int i);
 protected:
 	std::vector<Face> faces_;
 	std::vector<glm::vec3> vertices_;
@@ -73,6 +76,7 @@ protected:
 	std::vector<glm::vec3> Transformedvertices_;
 	std::vector<glm::vec3> Transformednormals_;
 	std::vector<glm::vec3> Centers;
+	std::vector<glm::vec3> FacesColors;
 	glm::mat4x4 tWorldMatrix;
 	glm::mat4x4 rXWorldMatrix;
 	glm::mat4x4 rYWorldMatrix;
@@ -85,6 +89,7 @@ protected:
 	glm::mat4x4 rZLocalMatrix;
 	glm::mat4x4 rLocalMatrix;
 	glm::mat4x4 sLocalMatrix;
+	glm::mat4x4 ModelScale;
 	glm::mat4x4 Transformation;
 	glm::mat4x4 LocalTransformation;
 	glm::mat4x4 WorldTransformation;
