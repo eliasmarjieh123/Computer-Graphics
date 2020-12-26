@@ -19,7 +19,7 @@ public:
 	void DrawFaceNormals(glm::mat4x4 Transformation, MeshModel& mesh);
 	void DrawBoundingBox(Camera& mesh);
 	void Renderer::DrawFaces2(glm::mat4x4 Transformation, glm::mat4x4 view, MeshModel& mesh, bool ortho);
-	void FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 color);
+	void FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 color, MeshModel& mesh);
 	bool PointInTriangle(int x, int y);
 	bool CheckIfLastFaceFromRight(int x, int y, int maxx);
 	void ClearZbuffer(int w, int h);

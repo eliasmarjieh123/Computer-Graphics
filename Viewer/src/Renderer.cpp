@@ -277,7 +277,7 @@ bool Renderer::PointInTriangle(int x,int y )
 	return 0;
 }
 
-void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 color) {
+void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 color, MeshModel& mesh) {
 	int minx, miny, maxy, maxx, tempx, flag, v = 2;
 	//maxx = v1.x >= v2.x ? v1.x : v2.x;
 	//maxx = maxx >= v3.x ? maxx : v3.x;
@@ -297,10 +297,15 @@ void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 
 			//if (PointInTriangle(tempx, miny) && CheckIfLastFaceFromRight(tempx, miny, maxx)) {
 			if(PointInTriangle(glm::vec3(tempx,miny,0),v1,v2,v3)){
 				float Z= CalculateZ(glm::vec3(tempx, miny, 0), v1, v2, v3);
-				if (Z < Z_buffer_[(miny) * viewport_width_ + tempx]) {
-					if (minz > Z)minz = Z;
-					if (maxz < Z)maxz = Z;
-					Z_buffer_[(miny)*viewport_width_ + tempx] = Z;
+				if (mesh.GetIfZbufferAlgo()) {
+					if (Z < Z_buffer_[(miny)*viewport_width_ + tempx]) {
+						if (minz > Z)minz = Z;
+						if (maxz < Z)maxz = Z;
+						Z_buffer_[(miny)*viewport_width_ + tempx] = Z;
+						PutPixel(tempx, miny, color);
+					}
+				}
+				else {
 					PutPixel(tempx, miny, color);
 				}
 			}
@@ -338,7 +343,7 @@ void Renderer::DrawFaces2(glm::mat4x4 Transformation,glm::mat4x4 view, MeshModel
 			v2.z = v2.z / v2.w;
 			v3.z = v3.z / v3.w;
 		}
-		FillTriangle(v1, v2, v3,mesh.GetFaceColor(i));
+		FillTriangle(v1, v2, v3,mesh.GetFaceColor(i),mesh);
 	}
 }
 
@@ -565,8 +570,8 @@ void Renderer::ClearZbuffer(int w,int h) {
 		for (int j = 0; j < w; j++)
 			Z_buffer_[i * w + j] =1.0f;
 
-	minz = FLT_MAX;
-	maxz = FLT_MIN;
+	this->minz = FLT_MAX;
+	this->maxz = FLT_MIN;
 }
 
 void Renderer::Render(Scene& scene)
@@ -598,7 +603,9 @@ void Renderer::Render(Scene& scene)
 		//t= glm::ortho(-20.0f / 2, 20.0f / 2, - height_ / 2, height_ / 2, 0.1f, -1000.f)* glm::lookAt(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0))* glm::inverse(ViewT) * ModelTransformation;
 		//DrawFaces(t, cam);
 		DrawFaces2(t,ViewPort, cam, cam.GetIfOrthographicProjection());
-		//ZBufferGrayscale();
+		if (cam.GetIfGrayScale()) {
+			ZBufferGrayscale();
+		}
 		if(cam.Get_ShowBoundingBox())DrawBoundingBox(cam);
 		if (cam.Get_ShowFaceNormals())DrawFaceNormals(t, cam);
 		if (cam.Get_ShowVertexNormals())DrawVertexNormals(t, cam);

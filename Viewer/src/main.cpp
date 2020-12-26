@@ -256,6 +256,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	// 3. Show another simple window.
 	static float scaleModel=0.75f,FOV=70.0f,orthow = 20.f, xscale = 1, yscale = 1, zscale = 1, ztranslate = 0, xtranslate = 0, ytranslate = 0, AnglewX = 0, AnglewY = 0, AnglewZ = 0, AngleX = 0, AngleY = 0, AngleZ = 0, xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
 	static float  Camxscale = 1, Camyscale = 1, Camzscale = 1, Camztranslate = 0, Camxtranslate = 0, Camytranslate = 0, CamAnglewX = 0, CamAnglewY = 0, CamAnglewZ = 0, CamAngleX = 0, CamAngleY = 0, CamAngleZ = 0, Camxscalew = 1, Camyscalew = 1, Camzscalew = 1, Camztranslatew = 0, Camxtranslatew = 0, Camytranslatew = 0;
+	static bool ZB = false, GS = false;
 	static glm::vec3 VertexNormalsColor(0.8f,0.8f,0.8f) ;
 	static glm::vec3 FaceNormalsColor(0.8f,0.8f,0.8f) ;
 	static glm::vec3 BoundingBoxColor(0.8f,0.8f,0.8f) ;
@@ -276,6 +277,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	glm::vec3 lastEye = glm::vec3(eye[0], eye[1], eye[2]);
 	ImGui::SliderFloat("Scale Model", &scaleModel, 0.0f, 50.0f, "%.5f");
 	if(scene.GetCameraCount() > 0)scene.GetActiveCamera().ScaleModel(scaleModel);
+	ImGui::Checkbox("Activate Z-Buffer Algorithm", &ZB);
+	ImGui::Checkbox("Activate Gray Scale", &GS);
+	if ( scene.GetCameraCount() > 0)
+	{
+		scene.GetActiveCamera().ActivateGrayScale(GS);
+		scene.GetActiveCamera().ActivateZbufferAlgo(ZB);
+	}
 	if (show_another_window)
 	{
 		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)

@@ -67,6 +67,10 @@ public:
 	void ScaleModel(float scale);
 	glm::mat4x4 MeshModel::GetModelScale();
 	glm::vec3 MeshModel::GetFaceColor(int i);
+	void ActivateGrayScale(bool flag);
+	bool GetIfGrayScale();
+	void ActivateZbufferAlgo(bool flag);
+	bool GetIfZbufferAlgo();
 protected:
 	std::vector<Face> faces_;
 	std::vector<glm::vec3> vertices_;
@@ -108,4 +112,6 @@ protected:
 	glm::vec3 ShowVertexNormalsColor;
 	glm::vec3 ShowFaceNormalsColor;
 	glm::vec3 ShowBoundingBoxColor;
+	bool GrayScale;
+	bool ZbufferAlgo;
 };

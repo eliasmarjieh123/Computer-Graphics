@@ -45,6 +45,8 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 		FacesColors.push_back(color);
 		i++;
 	}
+	GrayScale = false;
+	ZbufferAlgo = false;
 }
 
 MeshModel::~MeshModel()
@@ -499,3 +501,18 @@ glm::vec3 MeshModel::GetFaceColor(int i) {
 	return FacesColors[i];
 }
 
+void MeshModel::ActivateGrayScale(bool flag) {
+	GrayScale = flag;
+}
+
+bool MeshModel::GetIfGrayScale() {
+	return GrayScale;
+}
+
+void MeshModel::ActivateZbufferAlgo(bool flag) {
+	ZbufferAlgo = flag;
+}
+
+bool MeshModel::GetIfZbufferAlgo() {
+	return ZbufferAlgo;
+}
