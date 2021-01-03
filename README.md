@@ -1,10 +1,11 @@
 # Computer Graphics 203.3710
 ## Students Team data
 
-Name: 'Elias Marjieh'  
-Student Number: '318386646'
+Name: 'Your real name'  
+Student Number: 'Your student number'
 
-
+Name: 'Your real name'  
+Student Number: 'Your student number'
 
 ### Lecturer
 *Roi Poranne*
