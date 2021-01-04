@@ -316,6 +316,29 @@ void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 
 }
 
 void Renderer::DrawFaces2(glm::mat4x4 Transformation,glm::mat4x4 view, MeshModel& mesh,bool ortho) {
+	glm::vec4 v11 = glm::vec4(mesh.GetVertex(0), 1.f);
+	v11 = Transformation * v11;
+	v11.x = v11.x / v11.w;
+	v11.y = v11.y / v11.w;
+	v11.z = v11.z / v11.w;
+	mesh.SetMinX(v11.x);
+	mesh.SetMinX(v11.x);
+	mesh.SetMinX(v11.x);
+	mesh.SetMinY(v11.y);
+	mesh.SetMinY(v11.y);
+	mesh.SetMinY(v11.y);
+	mesh.SetMinZ(v11.z);
+	mesh.SetMinZ(v11.z);
+	mesh.SetMinZ(v11.z);
+	mesh.SetMaxX(v11.x);
+	mesh.SetMaxX(v11.x);
+	mesh.SetMaxX(v11.x);
+	mesh.SetMaxY(v11.y);
+	mesh.SetMaxY(v11.y);
+	mesh.SetMaxY(v11.y);
+	mesh.SetMaxZ(v11.z);
+	mesh.SetMaxZ(v11.z);
+	mesh.SetMaxZ(v11.z);
 	for (int i = 0; i < mesh.GetFacesCount(); i++) {
 		int p1 = mesh.GetFace(i).GetVertexIndex(0);
 		int p2 = mesh.GetFace(i).GetVertexIndex(1);
@@ -343,8 +366,33 @@ void Renderer::DrawFaces2(glm::mat4x4 Transformation,glm::mat4x4 view, MeshModel
 			v2.z = v2.z / v2.w;
 			v3.z = v3.z / v3.w;
 		}
+		if (v1.x < mesh.GetMinX()) { mesh.SetMinX(v1.x); }
+		if (v2.x < mesh.GetMinX()) { mesh.SetMinX(v2.x); }
+		if (v3.x < mesh.GetMinX()) { mesh.SetMinX(v3.x); }
+		if (v1.y < mesh.GetMinY()) { mesh.SetMinY(v1.y); }
+		if (v2.y < mesh.GetMinY()) { mesh.SetMinY(v2.y); }
+		if (v3.y < mesh.GetMinY()) { mesh.SetMinY(v3.y); }
+		if (v1.z < mesh.GetMinZ()) { mesh.SetMinZ(v1.z); }
+		if (v2.z < mesh.GetMinZ()) { mesh.SetMinZ(v2.z); }
+		if (v3.z < mesh.GetMinZ()) { mesh.SetMinZ(v3.z); }
+		if (v1.x > mesh.GetMaxX()) { mesh.SetMaxX(v1.x); }
+		if (v2.x > mesh.GetMaxX()) { mesh.SetMaxX(v2.x); }
+		if (v3.x > mesh.GetMaxX()) { mesh.SetMaxX(v3.x); }
+		if (v1.y > mesh.GetMaxY()) { mesh.SetMaxY(v1.y); }
+		if (v2.y > mesh.GetMaxY()) { mesh.SetMaxY(v2.y); }
+		if (v3.y > mesh.GetMaxY()) { mesh.SetMaxY(v3.y); }
+		if (v1.z > mesh.GetMaxZ()) { mesh.SetMaxZ(v1.z); }
+		if (v2.z > mesh.GetMaxZ()) { mesh.SetMaxZ(v2.z); }
+		if (v3.z > mesh.GetMaxZ()) { mesh.SetMaxZ(v3.z); }
+		if (v1.z > mesh.GetMaxW()) { mesh.SetMaxW(v1.w); }
+		if (v2.z > mesh.GetMaxW()) { mesh.SetMaxW(v2.w); }
+		if (v3.z > mesh.GetMaxW()) { mesh.SetMaxW(v3.w); }
+		if (v1.z < mesh.GetMinW()) { mesh.SetMinW(v1.w); }
+		if (v2.z < mesh.GetMinW()) { mesh.SetMinW(v2.w); }
+		if (v3.z < mesh.GetMinW()) { mesh.SetMinW(v3.w); }
 		FillTriangle(v1, v2, v3,mesh.GetFaceColor(i),mesh);
 	}
+	mesh.CalculateBoundingBox();
 }
 
 void Renderer::DrawVertexNormals(glm::mat4x4 Transformation, MeshModel& mesh) {
@@ -359,15 +407,15 @@ void Renderer::DrawVertexNormals(glm::mat4x4 Transformation, MeshModel& mesh) {
 		glm::vec4 v1 = Transformation * glm::vec4(mesh.GetVertex(vi1 - 1), 1);
 		glm::vec4 v2 = Transformation * glm::vec4(mesh.GetVertex(vi2 - 1), 1);
 		glm::vec4 v3 = Transformation * glm::vec4(mesh.GetVertex(vi3 - 1), 1);
-		v1.x = v1.x / v1.w;
-		v1.y = v1.y / v1.w;
-		v1.z = v1.z / v1.w;
-		v2.x = v2.x / v2.w;
-		v2.y = v2.y / v2.w;
-		v2.z = v2.z / v2.w;
-		v3.x = v3.x / v3.w;
-		v3.y = v3.y / v3.w;
-		v3.z = v3.z / v3.w;
+		//v1.x = v1.x / v1.w;
+		//v1.y = v1.y / v1.w;
+		//v1.z = v1.z / v1.w;
+		//v2.x = v2.x / v2.w;
+		//v2.y = v2.y / v2.w;
+		//v2.z = v2.z / v2.w;
+		//v3.x = v3.x / v3.w;
+		//v3.y = v3.y / v3.w;
+		//v3.z = v3.z / v3.w;
 		glm::vec4 vn1 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni1 - 1), 1);
 		glm::vec4 vn2 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni2 - 1), 1);
 		glm::vec4 vn3 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni3 - 1), 1);
@@ -601,14 +649,15 @@ void Renderer::Render(Scene& scene)
 		glm::mat4x4 t =  Projection  * LookAt * glm::inverse(ViewT) *ModelTransformation*Scale;
 		float height_ = 20.0f / 1.7777f;
 		//t= glm::ortho(-20.0f / 2, 20.0f / 2, - height_ / 2, height_ / 2, 0.1f, -1000.f)* glm::lookAt(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0))* glm::inverse(ViewT) * ModelTransformation;
-		//DrawFaces(t, cam);
 		DrawFaces2(t,ViewPort, cam, cam.GetIfOrthographicProjection());
+		//DrawFaces(ViewPort*t ,cam);
+		
 		if (cam.GetIfGrayScale()) {
 			ZBufferGrayscale();
 		}
 		if(cam.Get_ShowBoundingBox())DrawBoundingBox(cam);
-		if (cam.Get_ShowFaceNormals())DrawFaceNormals(t, cam);
-		if (cam.Get_ShowVertexNormals())DrawVertexNormals(t, cam);
+		if (cam.Get_ShowFaceNormals())DrawFaceNormals(ViewPort * t, cam);
+		if (cam.Get_ShowVertexNormals())DrawVertexNormals(ViewPort * t, cam);
 	}
 
     ///////////////////////////////this loop test Bresenham's algorithm
