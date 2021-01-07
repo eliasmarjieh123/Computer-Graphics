@@ -11,6 +11,7 @@
 #include <string>
 #include "Renderer.h"
 #include "Scene.h"
+#include "Light.h"
 #include "Utils.h"
 #include "Camera.h"
 #include <gl/GLU.h>
@@ -23,6 +24,7 @@ bool show_transformations_window = false;
 bool show_camera_transformations_window = false;
 bool show_camera_LookAt_window = false;
 bool show_what_to_show_window = false;
+bool show_lights_window;
 bool Draw_Vertex_Normal = false;
 bool Draw_Bounding_Box = false;
 bool Draw_Face_Normal = false;
@@ -225,8 +227,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	 */
 	
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (show_demo_window)
-		ImGui::ShowDemoWindow(&show_demo_window);
+	//if (show_demo_window)
+		//ImGui::ShowDemoWindow(&show_demo_window);
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	{
@@ -235,19 +237,21 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &show_another_window);
+	//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+	//	ImGui::Checkbox("Another Window", &show_another_window);
 		ImGui::Checkbox("Model Transformations Window", &show_transformations_window);
+		ImGui::Checkbox("Lights Window", &show_lights_window);
 		ImGui::Checkbox("Camera Transformations Window", &show_camera_transformations_window);
 		ImGui::Checkbox("Camera LookAt Window", &show_camera_LookAt_window);
 		ImGui::Checkbox("Model Properties Window", &show_what_to_show_window);
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
+		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+		//if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			//counter++;
+		//ImGui::SameLine();
+		//ImGui::Text("counter = %d", counter);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
@@ -256,13 +260,24 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	// 3. Show another simple window.
 	static float scaleModel=0.75f,FOV=70.0f,orthow = 20.f, xscale = 1, yscale = 1, zscale = 1, ztranslate = 0, xtranslate = 0, ytranslate = 0, AnglewX = 0, AnglewY = 0, AnglewZ = 0, AngleX = 0, AngleY = 0, AngleZ = 0, xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
 	static float  Camxscale = 1, Camyscale = 1, Camzscale = 1, Camztranslate = 0, Camxtranslate = 0, Camytranslate = 0, CamAnglewX = 0, CamAnglewY = 0, CamAnglewZ = 0, CamAngleX = 0, CamAngleY = 0, CamAngleZ = 0, Camxscalew = 1, Camyscalew = 1, Camzscalew = 1, Camztranslatew = 0, Camxtranslatew = 0, Camytranslatew = 0;
+	static float LightTX = 100, LightTY = 0, LightTZ = 0;
 	static bool ZB = false, GS = false;
 	static glm::vec3 VertexNormalsColor(0.8f,0.8f,0.8f) ;
 	static glm::vec3 FaceNormalsColor(0.8f,0.8f,0.8f) ;
+	static glm::vec3 AmbientColor=glm::vec3(0,0,255) ;
+	static glm::vec3 DiffuseColor=glm::vec3(0,0,255) ;
+	static glm::vec3 SpecularColor=glm::vec3(0,0,255) ;
 	static glm::vec3 BoundingBoxColor(0.8f,0.8f,0.8f) ;
+	static std::vector<glm::vec3> AmbientLightColor;
+	static std::vector<glm::vec3> DiffuseLightColor;
+	static std::vector<glm::vec3> SpecularLightColor;
+	static glm::vec3 AmbientLightColor1;
+	static glm::vec3 DiffuseLightColor1;
+	static glm::vec3 SpecularLightColor1;
 	static float eye[3] = { 0,0,10 };
 	static float at[3] = { 0,0,0 };
 	static float up[3] = { 0,1,0 };
+	static bool Flat=1,G=0,P=0;
 	if ( scene.GetCameraCount() > 0) {
 		//eye[0]=scene.GetActiveCamera().GetEye().x;
 		//eye[1]=scene.GetActiveCamera().GetEye().y;
@@ -279,6 +294,30 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	if(scene.GetCameraCount() > 0)scene.GetActiveCamera().ScaleModel(scaleModel);
 	ImGui::Checkbox("Activate Z-Buffer Algorithm", &ZB);
 	ImGui::Checkbox("Activate Gray Scale", &GS);
+	if (show_lights_window) {
+		ImGui::Begin("Lights Window", &show_lights_window);
+		if (ImGui::Button("Add Light")) {
+			scene.AddLight(Utils::LoadLight());
+		}
+		//AmbientLightColor.clear();
+		//DiffuseLightColor.clear();
+		//SpecularLightColor.clear();
+		if (scene.GetLightCount() > 0) {
+			ImGui::ColorEdit3("Pick Ambient Color", (float*)&AmbientLightColor1);
+			ImGui::ColorEdit3("Pick Diffuse Color", (float*)&DiffuseLightColor1);
+			ImGui::ColorEdit3("Pick Specular Color", (float*)&SpecularLightColor1);
+			scene.GetActiveLight().SetAmbientColor(AmbientLightColor1);
+			scene.GetActiveLight().SetDiffuseColor(DiffuseLightColor1);
+			scene.GetActiveLight().SetSpecularColor(SpecularLightColor1);
+			ImGui::SliderFloat("Translate by x", &LightTX, 0, 2000);
+			ImGui::SliderFloat("Translate by y", &LightTY, 0, 2000);
+			ImGui::SliderFloat("Translate by z", &LightTZ, -1000, 1000);
+				scene.GetActiveLight().Translate(0, LightTX, LightTY, LightTZ);
+
+		}
+		ImGui::End();
+
+	}
 	if ( scene.GetCameraCount() > 0)
 	{
 		scene.GetActiveCamera().ActivateGrayScale(GS);
@@ -294,6 +333,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 	if (show_what_to_show_window && scene.GetCameraCount() > 0)
 	{
+
 		ImGui::Begin("Show Window", &show_what_to_show_window);
 		ImGui::Checkbox("Draw Normal Per Vertex", &Draw_Vertex_Normal);
 		ImGui::Checkbox("Draw Normal Per Face", &Draw_Face_Normal);
@@ -322,8 +362,31 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		else {
 			scene.GetActiveCamera().Set_ShowBoundingBox(0);
 		}
+		ImGui::ColorEdit3("Pick Ambient Color", (float*)&AmbientColor);
+		ImGui::ColorEdit3("Pick Diffuse Color", (float*)&DiffuseColor);
+		ImGui::ColorEdit3("Pick Specular Color", (float*)&SpecularColor);
+			scene.GetActiveCamera().SetAmbientColor(AmbientColor);
+			scene.GetActiveCamera().SetDiffuseColor(DiffuseColor);
+			scene.GetActiveCamera().SetSpecularColor(SpecularColor);
+			if (ImGui::Checkbox("Flat Shading", &Flat) ){
+				G=0;
+				P=0;
+				scene.GetActiveCamera().SetShadingType(0);
+			}
+			if (ImGui::Checkbox("Gouraud Shading", &G)) {
+				Flat = 0;
+				P = 0;
+				scene.GetActiveCamera().SetShadingType(1);
+			}
+			if (ImGui::Checkbox("Phong Shading", &P)) {
+				Flat = 0;
+				G = 0;
+				scene.GetActiveCamera().SetShadingType(2);
+			}
 		ImGui::End();
 	}
+
+
 	if (show_transformations_window && scene.GetCameraCount() > 0)
 	{
 		ImGui::Begin("Model Transformations Window", &show_transformations_window);

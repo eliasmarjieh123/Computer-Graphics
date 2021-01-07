@@ -20,6 +20,8 @@ glm::vec2 Utils::Vec2fFromStream(std::istream& issLine)
 	return glm::vec2(x, y);
 }
 
+
+
 std::shared_ptr<MeshModel> Utils::LoadMeshModel(const std::string& filePath)
 {
 	std::vector<Face> faces;
@@ -154,4 +156,8 @@ std::string Utils::GetFileName(const std::string& filePath)
 	}
 
 	return filePath.substr(index + 1, len - index);
+}
+
+std::shared_ptr<Light> Utils::LoadLight() {
+	return std::make_shared<Light>();
 }

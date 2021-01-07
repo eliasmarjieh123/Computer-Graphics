@@ -277,31 +277,44 @@ bool Renderer::PointInTriangle(int x,int y )
 	return 0;
 }
 
-void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 color, MeshModel& mesh) {
-	int minx, miny, maxy, maxx, tempx, flag, v = 2;
-	//maxx = v1.x >= v2.x ? v1.x : v2.x;
-	//maxx = maxx >= v3.x ? maxx : v3.x;
-	//maxy = v1.y >= v2.y ? v1.y : v2.y;
-	//maxy = maxy >= v3.y ? maxy : v3.y;
-	//minx = v1.x <= v2.x ? v1.x : v2.x;
-	//minx = minx <= v3.x ? minx : v3.x;
-	//miny = v1.y <= v2.y ? v1.y : v2.y;
-	//miny = miny <= v3.y ? miny : v3.y;
+void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, int i,glm::mat4x4 t, MeshModel& mesh,glm::vec3 v,Light l) {
+	int minx, miny, maxy, maxx, tempx, flag;
+	glm::vec3 color,vn1,vn2,vn3,v1Color,v2Color,v3Color,PixelNormal;
+	vn1 = mesh.GetVertexNormal(mesh.GetFace(i).GetNormalIndex(0) - 1);
+	vn2 = mesh.GetVertexNormal(mesh.GetFace(i).GetNormalIndex(1) - 1);
+	vn3 = mesh.GetVertexNormal(mesh.GetFace(i).GetNormalIndex(2) - 1);
+	v1Color = CalculateColor(mesh.GetRotation() * glm::vec4(vn1, 1), glm::normalize(l.GetPosition()-v1), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
+	v2Color = CalculateColor(mesh.GetRotation() * glm::vec4(vn2, 1), glm::normalize(l.GetPosition()-v2), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
+	v3Color = CalculateColor(mesh.GetRotation() * glm::vec4(vn3, 1), glm::normalize(l.GetPosition()-v3), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
 	maxx = std::max(v1.x, std::max(v2.x, v3.x));
 	maxy = std::max(v1.y, std::max(v2.y, v3.y));
 	minx = std::min(v1.x, std::min(v2.x, v3.x));
 	miny = std::min(v1.y, std::min(v2.y, v3.y));
+	if (mesh.GetShadingType() == 0) {
+		color = CalculateColor(mesh.GetRotation() * (glm::vec4(mesh.GetNormal(i), 2) -  glm::vec4(mesh.GetCenter(i), 1)), glm::normalize(glm::vec4(l.GetPosition(),1)-t * glm::vec4(mesh.GetCenter(i), 1)) , mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
+	}
 	while (miny <= maxy) {
 		tempx = minx;
 		while (tempx <= maxx) {
 			//if (PointInTriangle(tempx, miny) && CheckIfLastFaceFromRight(tempx, miny, maxx)) {
 			if(PointInTriangle(glm::vec3(tempx,miny,0),v1,v2,v3)){
-				float Z= CalculateZ(glm::vec3(tempx, miny, 0), v1, v2, v3);
+				glm::vec3 Z= CalculateZ(glm::vec3(tempx, miny, 0), v1, v2, v3,v1,v2,v3);
+				if (mesh.GetShadingType() == 1) {
+					color =CalculateZ(Z, v1, v2, v3, v1Color,v2Color,v3Color);
+					if (color.x > 1)color.x = 1;
+					if (color.y > 1)color.y = 1;
+					if (color.z > 1)color.z = 1;
+				}
+				if (mesh.GetShadingType() == 2) {
+					PixelNormal = CalculateZ(glm::vec3(tempx, miny, 0), v1, v2, v3, vn1, vn2, vn3);
+					color = CalculateColor(mesh.GetRotation()*glm::vec4(PixelNormal,1), glm::normalize(l.GetPosition() - Z), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
+
+				}
 				if (mesh.GetIfZbufferAlgo()) {
-					if (Z < Z_buffer_[(miny)*viewport_width_ + tempx]) {
-						if (minz > Z)minz = Z;
-						if (maxz < Z)maxz = Z;
-						Z_buffer_[(miny)*viewport_width_ + tempx] = Z;
+					if (Z.z < Z_buffer_[(miny)*viewport_width_ + tempx]) {
+						if (minz > Z.z)minz = Z.z;
+						if (maxz < Z.z)maxz = Z.z;
+						Z_buffer_[(miny)*viewport_width_ + tempx] = Z.z;
 						PutPixel(tempx, miny, color);
 					}
 				}
@@ -315,9 +328,9 @@ void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 
 	}
 }
 
-void Renderer::DrawFaces2(glm::mat4x4 Transformation,glm::mat4x4 view, MeshModel& mesh,bool ortho) {
+void Renderer::DrawFaces2(glm::mat4x4 Transformation,glm::mat4x4 view, MeshModel& mesh,bool ortho,Light& l,glm::vec3 v) {
 	glm::vec4 v11 = glm::vec4(mesh.GetVertex(0), 1.f);
-	v11 = Transformation * v11;
+	v11 = view*Transformation * v11;
 	v11.x = v11.x / v11.w;
 	v11.y = v11.y / v11.w;
 	v11.z = v11.z / v11.w;
@@ -390,7 +403,7 @@ void Renderer::DrawFaces2(glm::mat4x4 Transformation,glm::mat4x4 view, MeshModel
 		if (v1.z < mesh.GetMinW()) { mesh.SetMinW(v1.w); }
 		if (v2.z < mesh.GetMinW()) { mesh.SetMinW(v2.w); }
 		if (v3.z < mesh.GetMinW()) { mesh.SetMinW(v3.w); }
-		FillTriangle(v1, v2, v3,mesh.GetFaceColor(i),mesh);
+		FillTriangle(v1, v2, v3, i, view * Transformation,mesh,v,l);
 	}
 	mesh.CalculateBoundingBox();
 }
@@ -407,15 +420,6 @@ void Renderer::DrawVertexNormals(glm::mat4x4 Transformation, MeshModel& mesh) {
 		glm::vec4 v1 = Transformation * glm::vec4(mesh.GetVertex(vi1 - 1), 1);
 		glm::vec4 v2 = Transformation * glm::vec4(mesh.GetVertex(vi2 - 1), 1);
 		glm::vec4 v3 = Transformation * glm::vec4(mesh.GetVertex(vi3 - 1), 1);
-		//v1.x = v1.x / v1.w;
-		//v1.y = v1.y / v1.w;
-		//v1.z = v1.z / v1.w;
-		//v2.x = v2.x / v2.w;
-		//v2.y = v2.y / v2.w;
-		//v2.z = v2.z / v2.w;
-		//v3.x = v3.x / v3.w;
-		//v3.y = v3.y / v3.w;
-		//v3.z = v3.z / v3.w;
 		glm::vec4 vn1 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni1 - 1), 1);
 		glm::vec4 vn2 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni2 - 1), 1);
 		glm::vec4 vn3 = glm::scale(glm::vec3(30,30,30))*glm::vec4(mesh.GetVertexNormal(vni3 - 1), 1);
@@ -628,11 +632,20 @@ void Renderer::Render(Scene& scene)
 	int half_width = viewport_width_ / 2;
 	int half_height = viewport_height_ / 2;
 	int thickness = 15;
-	int r = 100, steps = 50;
+	int r = 10, steps = 50;
 	float angle = 2.f * PI / steps;
 	float w =float( GetViewportWidth());
 	float h = float(GetViewportHeight());
+	Light l;
 	ClearZbuffer(w,h);
+	if (scene.GetLightCount() > 0) {
+		l = scene.GetActiveLight();
+		for (int i = 0; i <= steps; i++) {
+			glm::vec2 point1 = l.GetPosition();
+			glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));
+			DrawLine(point1, point2, l.GetAmbientColor());
+		}
+	}
 	if (scene.GetCameraCount()>0) {
 		Camera cam = scene.GetActiveCamera();
 		glm::mat4x4 CamTransformation = cam.GetViewTransformation();
@@ -649,7 +662,7 @@ void Renderer::Render(Scene& scene)
 		glm::mat4x4 t =  Projection  * LookAt * glm::inverse(ViewT) *ModelTransformation*Scale;
 		float height_ = 20.0f / 1.7777f;
 		//t= glm::ortho(-20.0f / 2, 20.0f / 2, - height_ / 2, height_ / 2, 0.1f, -1000.f)* glm::lookAt(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0))* glm::inverse(ViewT) * ModelTransformation;
-		DrawFaces2(t,ViewPort, cam, cam.GetIfOrthographicProjection());
+		DrawFaces2(t,ViewPort, cam, cam.GetIfOrthographicProjection(),l,cam.GetEye());
 		//DrawFaces(ViewPort*t ,cam);
 		
 		if (cam.GetIfGrayScale()) {
@@ -661,15 +674,6 @@ void Renderer::Render(Scene& scene)
 	}
 
     ///////////////////////////////this loop test Bresenham's algorithm
-	//for (int i = 0; i <= steps; i++) {
-	//	glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));
-	//	if (point2.x > point1.x) {
-	//		DrawLine(point1, point2, glm::vec3(0, 0, 0));
-	//	}
-	//	else {
-	//		DrawLine(point2, point1, glm::vec3(0, 0, 0));
-	//	}
-	//}
 
 	/////////////////////////////////this loop prints 16 circles in each other
 
@@ -714,10 +718,10 @@ glm::mat4x4 Renderer::GetViewPortTransformation()
 	return glm::mat4x4(GetViewportWidth()/2,0,0,0,0,GetViewportHeight()/2,0,0,0,0,1,0,(GetViewportWidth()-1)/2,(GetViewportHeight()-1)/2,0,1);
 }
 
-float Renderer::CalculateZ(glm::vec3 p,glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
+glm::vec3 Renderer::CalculateZ(glm::vec3 p,glm::vec3 v1, glm::vec3 v2, glm::vec3 v3,glm::vec3 val1,glm::vec3 val2,glm::vec3 val3) {
 	float A , A1 = CalcArea(p, v2, v3), A2 = CalcArea(p, v1, v3), A3 = CalcArea(p, v1, v2);
 	A = A1 + A2 + A3;
-	return ((A1 / A * v1.z) + (A2 / A * v2.z) + (A3 / A * v3.z));
+	return ((A1 / A * val1) + (A2 / A * val2) + (A3 / A * val3));
 }
 
 void Renderer::ZBufferGrayscale()
@@ -746,22 +750,12 @@ void Renderer::ZBufferGrayscale()
 }
 
 float Renderer::CalcArea(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
-	return abs((v1.x * (v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v2.y - v1.y)) / 2.0f);
+	return abs(((v2.x - v1.x) * (v3.y - v1.y) - (v3.x - v1.x) * (v2.y - v1.y)) / 2.f);
+	//return abs((v1.x * (v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v2.y - v1.y)) / 2.0f);
 }
 
  bool Renderer::PointInTriangle(glm::vec3 p, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
 {
-	//float s = p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y;
-	//float t = p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y;
-	//
-	//if ((s < 0) != (t < 0))
-	//	return false;
-	//
-	//float A = -p1.y * p2.x + p0.y * (p2.x - p1.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y;
-	//
-	//return A < 0 ?
-	//	(s < 0 && s + t > A) :
-	//	(s > 0 && s + t < A);
 	 auto dX = p.x - p3.x;
 	 auto dY = p.y - p3.y;
 	 auto dX21 = p3.x - p2.x;
@@ -773,3 +767,30 @@ float Renderer::CalcArea(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
 	 return s >= 0 && t >= 0 && s + t <= D;
 
 }
+
+ glm::vec3 Renderer::CalculateColor(glm::vec3 normal,glm::vec3 LightPosition, glm::vec3 ModelAmbient, glm::vec3 ModelDiffuse, glm::vec3 ModelSpecular, glm::vec3 LightAmbient, glm::vec3 LightDiffuse, glm::vec3 LightSpecular,glm::vec3 v) {
+	 int alpha = 5;
+	 glm::vec3 Ambient, Diffuse, Specular,r,color;
+	 float angle1,angle=(normal.x*LightPosition.x+ normal.y * LightPosition.y+ normal.z * LightPosition.z)/(sqrt(normal.x*normal.x+normal.y*normal.y+normal.z*normal.z)* sqrt(LightPosition.x * LightPosition.x + LightPosition.y * LightPosition.y + LightPosition.z * LightPosition.z));
+	 Ambient.x = (LightAmbient.x) * ModelAmbient.x;
+	 Ambient.y = (LightAmbient.y) * ModelAmbient.y;
+	 Ambient.z = (LightAmbient.z) * ModelAmbient.z;
+
+	 Diffuse.x = (LightDiffuse.x) *ModelDiffuse.x;
+	 Diffuse.y = (LightDiffuse.y) *ModelDiffuse.y;
+	 Diffuse.z = (LightDiffuse.z) *ModelDiffuse.z;
+	 Diffuse *= glm::dot(normal,LightPosition);
+	 Specular.x = (LightSpecular.x) * ModelSpecular.x;
+	 Specular.y = (LightSpecular.y) * ModelSpecular.y;
+	 Specular.z = (LightSpecular.z) * ModelSpecular.z;
+	 r = 2.f * glm::dot(-normal, LightPosition) * normal - LightPosition;
+	 float pow = std::pow(std::max(0.f, glm::dot(r, LightPosition)),alpha);
+	 Specular *= pow;
+	 color= (Ambient + Diffuse + Specular);
+	 if (color.x > 1.f)color.x = 1.f;
+	 if (color.y > 1.f)color.y = 1.f;
+	 if (color.z > 1.f)color.z = 1.f;
+	 return color;
+ }
+
+

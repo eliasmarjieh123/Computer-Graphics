@@ -36,17 +36,21 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	this->CalculateCenters();
 	this->CalculateFacesNormals();
 	int i = 0;
-	while (i < faces_.size()) {
-		glm::vec3 color;
-		color.x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
-		color.y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
-		color.z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
-		//std::cout << color.x << " " << color.y << " " << color.z << std::endl;
-		FacesColors.push_back(color);
-		i++;
-	}
+	//while (i < faces_.size()) {
+	//	glm::vec3 color;
+	//	color.x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
+	//	color.y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
+	//	color.z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
+	//	//std::cout << color.x << " " << color.y << " " << color.z << std::endl;
+	//	FacesColors.push_back(color);
+	//	i++;
+	//}
+	AmbientColor = glm::vec3(0, 0, 255);
+	DiffuseColor = glm::vec3(0, 0, 255);
+	SpecularColor = glm::vec3(0, 0, 255);
 	GrayScale = false;
 	ZbufferAlgo = false;
+	 ShadingType = 0;
 }
 
 MeshModel::~MeshModel()
@@ -113,10 +117,10 @@ void MeshModel::CalculateFacesNormals() {
 		glm::vec3 v1 = this->GetVertex(p1 - 1), v2 = this->GetVertex(p2 - 1), v3 = this->GetVertex(p3 - 1);
 		glm::vec3 n =glm::normalize(glm::cross(glm::vec3(v2-v1),glm::vec3(v3-v1)));
 		glm::vec4 v(n.x, n.y, n.z, 1);
-		v = glm::scale(glm::vec3(0.5, 0.5, 0.5)) * v;
-		n.x = v.x / v.w;
-		n.y = v.y / v.w;
-		n.z = v.z / v.w;
+	//	v = glm::scale(glm::vec3(0.5, 0.5, 0.5)) * v;
+		//n.x = v.x / v.w;
+		//n.y = v.y / v.w;
+		//n.z = v.z / v.w;
 		n =n+ this->GetCenter(i);
 		Facesnormals_.push_back(n);
 	}
@@ -515,4 +519,45 @@ void MeshModel::ActivateZbufferAlgo(bool flag) {
 
 bool MeshModel::GetIfZbufferAlgo() {
 	return ZbufferAlgo;
+}
+
+
+void MeshModel::SetAmbientColor(glm::vec3 color) {
+	AmbientColor = color;
+}
+
+void MeshModel::SetDiffuseColor(glm::vec3 color) {
+	DiffuseColor = color;
+}
+
+void MeshModel::SetSpecularColor(glm::vec3 color) {
+	SpecularColor = color;
+}
+
+glm::vec3 MeshModel::GetAmbientColor() {
+	return AmbientColor;
+}
+
+glm::vec3 MeshModel::GetDiffuseColor() {
+	return DiffuseColor;
+}
+
+glm::vec3 MeshModel::GetSpecularColor() {
+	return SpecularColor;
+}
+
+glm::vec3 MeshModel::GetModelColor() {
+	return (AmbientColor + DiffuseColor + SpecularColor) / glm::vec3(3,3,3);
+}
+
+void MeshModel::SetShadingType(int st) {
+	ShadingType = st;
+}
+
+int MeshModel::GetShadingType() {
+	return ShadingType;
+}
+
+glm::mat4x4 MeshModel::GetRotation() {
+	return rWorldMatrix * rLocalMatrix;
 }

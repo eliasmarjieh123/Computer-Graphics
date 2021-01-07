@@ -4,6 +4,7 @@
 
 Scene::Scene() :
 	active_camera_index_(0),
+	active_light_index_(0),
 	active_model_index_(0)
 {
 
@@ -67,4 +68,35 @@ void Scene::SetActiveModelIndex(int index)
 int Scene::GetActiveModelIndex() const
 {
 	return active_model_index_;
+}
+
+
+void Scene::AddLight(const std::shared_ptr<Light>& light)
+{
+	lights_.push_back(light);
+}
+
+int Scene::GetLightCount() const
+{
+	return lights_.size();
+}
+
+Light& Scene::GetLight(int index)
+{
+	return *lights_[index];
+}
+
+Light& Scene::GetActiveLight()
+{
+	return *lights_[active_light_index_];
+}
+
+void Scene::SetActiveLightIndex(int index)
+{
+	active_light_index_ = index;
+}
+
+int Scene::GetActiveLightIndex() const
+{
+	return active_light_index_;
 }
