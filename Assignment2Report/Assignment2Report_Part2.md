@@ -7,7 +7,7 @@ Few Explenations:
 =================
 
 The user can add as much lights as they want, there is the abillity to
-turn off/on any light, decide if its a point or parallel source, rotate,
+turn on/off any light, decide if its a point or parallel source, rotate,
 translate and specify colors and to choose direction when in parallel.
 Lights are shown as a star that presents a light when its turned on, and
 it's color is the same as the light's ambient color. The user can choose
