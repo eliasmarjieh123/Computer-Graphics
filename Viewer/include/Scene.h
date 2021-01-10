@@ -34,7 +34,18 @@ public:
 
 	void SetActiveModelIndex(int index);
 	int GetActiveModelIndex() const;
-	
+
+	float  GetFogBegin();
+	float  GetFogEnd();
+	void SetFogBegin(float b);
+	void SetFogEnd(float e);
+	void SetFogDensity(int d);
+	int  GetFogDensity();
+	void SetLinearFog(bool l);
+	bool GetLinearFog();
+	void ActivateFog(bool f);
+	bool IsFogActivated();
+
 private:
 	std::vector<std::shared_ptr<MeshModel>> mesh_models_;
 	std::vector<std::shared_ptr<Camera>> cameras_;
@@ -42,4 +53,9 @@ private:
 	int active_camera_index_;
 	int active_model_index_;
 	int active_light_index_;
+	float FogBegin;
+	float FogEnd;
+	int FogDensity;
+	bool LinearFog;
+	bool ActivatedFog;
 };

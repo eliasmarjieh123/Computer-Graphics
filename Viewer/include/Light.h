@@ -20,6 +20,17 @@ public:
 	glm::vec3 GetPosition();
 	void ActivateLight(bool f);
 	bool IsActive();
+	int GetAlpha();
+	void SetAlpha(int a);
+	bool GetIfPoint();
+	void SetPointParallel(int f);
+	float GetXTranslation();
+	float GetYTranslation();
+	float GetZTranslation();
+	float GetXRotation();
+	float GetYRotation();
+	float GetZRotation();
+	int   GetPP();
 
 private:
 	glm::vec3 AmbientColor;
@@ -35,6 +46,14 @@ private:
 	glm::mat4x4 WorldTranslate;
 	glm::mat4x4 LocalTranslate;
 	glm::mat4x4 Transformation;
+	float xTranslation;
+	float yTranslation;
+	float zTranslation;
+	float xRotation;
+	float yRotation;
+	float zRotation;
 	bool Active;
+	int alphaSpecular;
+	int PointParallel;
 };
 

@@ -3,17 +3,24 @@
 
 
 Light::Light() {
-    AmbientColor = glm::vec3(0, 0, 255);
-    DiffuseColor = glm::vec3(0, 0, 255);
-    SpecularColor = glm::vec3(0, 0, 255);
-    position = glm::vec3(100, 0, 0);
+	AmbientColor = glm::vec3(1.f, 1.f, 1.f);
+	DiffuseColor = glm::vec3(1.f, 1.f, 1.f);    
+	position = glm::vec3(100, 0, 0);
+	SpecularColor = glm::vec3(1.f, 1.f, 1.f);
 	Active = true;
     Transformation=LocalTranslate=LocalXrotation=LocalYrotation=LocalZrotation=WorldTranslate=WorldXrotation=WorldYrotation=WorldZrotation= glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	alphaSpecular=5;
+	PointParallel = 1;
+	xTranslation=0;
+	yTranslation=0;
+	zTranslation=0;
+	xRotation=0;
+	yRotation=0;
+	zRotation=0;
 }
 
 void Light::SetAmbientColor(glm::vec3 color) {
     AmbientColor = color;
-
 }
 
 void Light::SetDiffuseColor(glm::vec3 color) {
@@ -47,6 +54,7 @@ void Light::Transform() {
 void Light::Rotate(float angle, bool lw, int axis) {
 	glm::mat4x4 mat;
 	if (axis == 2) {
+		zRotation = angle;
 		mat = glm::rotate(glm::radians(angle), glm::vec3(0, 0, 1));
 		if (lw == 0) {
 			LocalXrotation = mat;
@@ -56,6 +64,7 @@ void Light::Rotate(float angle, bool lw, int axis) {
 		}
 	}
 	else if (axis == 1) {
+		yRotation = angle;
 		mat = glm::rotate(glm::radians(angle), glm::vec3(0, 1, 0));
 		if (lw == 0) {
 			LocalYrotation = mat;
@@ -65,6 +74,7 @@ void Light::Rotate(float angle, bool lw, int axis) {
 		}
 	}
 	else {
+		xRotation = angle;
 		mat = glm::rotate(glm::radians(angle), glm::vec3(1, 0, 0));
 		if (lw == 0) {
 			LocalZrotation = mat;
@@ -78,7 +88,11 @@ void Light::Rotate(float angle, bool lw, int axis) {
 }
 
 void Light::Translate(bool lw, float x, float y, float z) {
-	position = glm::vec3(x, y, z);
+	LocalTranslate = glm::translate(glm::vec3(x, y, z));
+	xTranslation = x;
+	yTranslation = y;
+	zTranslation = z;
+	Transform();
 }
 
 void Light::SetPosition(glm::vec3 p) {
@@ -97,3 +111,26 @@ bool Light::IsActive() {
 	return Active;
 }
 
+int Light::GetAlpha() {
+	return alphaSpecular;
+}
+
+void Light::SetAlpha(int a) {
+	alphaSpecular = a;
+}
+
+bool Light::GetIfPoint() {
+	return PointParallel;
+}
+
+void Light::SetPointParallel(int f) {
+	PointParallel = f;
+}
+
+float Light::GetXTranslation() { return xTranslation; }
+float Light::GetYTranslation() { return yTranslation; }
+float Light::GetZTranslation() { return zTranslation; }
+float Light::GetXRotation() { return xRotation; }
+float Light::GetYRotation() { return yRotation; }
+float Light::GetZRotation() { return zRotation; }
+int Light::GetPP() { return PointParallel; }

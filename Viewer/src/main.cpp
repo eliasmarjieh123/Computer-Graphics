@@ -29,7 +29,7 @@ bool Draw_Vertex_Normal = false;
 bool Draw_Bounding_Box = false;
 bool Draw_Face_Normal = false;
 
-glm::vec4 clear_color = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+glm::vec4 clear_color = glm::vec4(0, 0, 0, 0);
 
 /**
  * Function declarations
@@ -207,7 +207,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				else
 				{
 				}
-
 			}
 			ImGui::EndMenu();
 		}
@@ -259,36 +258,28 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 	// 3. Show another simple window.
 	static float scaleModel=0.75f,FOV=70.0f,orthow = 20.f, xscale = 1, yscale = 1, zscale = 1, ztranslate = 0, xtranslate = 0, ytranslate = 0, AnglewX = 0, AnglewY = 0, AnglewZ = 0, AngleX = 0, AngleY = 0, AngleZ = 0, xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
-	static float  Camxscale = 1, Camyscale = 1, Camzscale = 1, Camztranslate = 0, Camxtranslate = 0, Camytranslate = 0, CamAnglewX = 0, CamAnglewY = 0, CamAnglewZ = 0, CamAngleX = 0, CamAngleY = 0, CamAngleZ = 0, Camxscalew = 1, Camyscalew = 1, Camzscalew = 1, Camztranslatew = 0, Camxtranslatew = 0, Camytranslatew = 0;
-	static float LightTX = 100, LightTY = 0, LightTZ = 0;
-	static bool ZB = false, GS = false;
+	static float  LAngleX = 0, LAngleY = 0, LAngleZ = 0,Camxscale = 1, Camyscale = 1, Camzscale = 1, Camztranslate = 0, Camxtranslate = 0, Camytranslate = 0, CamAnglewX = 0, CamAnglewY = 0, CamAnglewZ = 0, CamAngleX = 0, CamAngleY = 0, CamAngleZ = 0, Camxscalew = 1, Camyscalew = 1, Camzscalew = 1, Camztranslatew = 0, Camxtranslatew = 0, Camytranslatew = 0;
+	static float LightTX = 0, LightTY = 0, LightTZ = 0;
+	static bool ZB = false, GS = false,Fog=false,Linear=false;
 	static glm::vec3 VertexNormalsColor(0.8f,0.8f,0.8f) ;
 	static glm::vec3 FaceNormalsColor(0.8f,0.8f,0.8f) ;
 	static glm::vec3 AmbientColor=glm::vec3(0,0,255) ;
-	static glm::vec3 DiffuseColor=glm::vec3(0,0,255) ;
-	static glm::vec3 SpecularColor=glm::vec3(0,0,255) ;
+	static glm::vec3 DiffuseColor= glm::vec3(0, 0, 255);
+	static glm::vec3 SpecularColor= glm::vec3(0, 0, 255);
 	static glm::vec3 BoundingBoxColor(0.8f,0.8f,0.8f) ;
 	static std::vector<glm::vec3> AmbientLightColor;
 	static std::vector<glm::vec3> DiffuseLightColor;
 	static std::vector<glm::vec3> SpecularLightColor;
-	static glm::vec3 AmbientLightColor1;
-	static glm::vec3 DiffuseLightColor1;
-	static glm::vec3 SpecularLightColor1;
+	static glm::vec3 AmbientLightColor1 =glm::vec3(1.f, 1.f, 1.f);
+	static glm::vec3 DiffuseLightColor1 =glm::vec3(1.f, 1.f, 1.f);
+	static glm::vec3 SpecularLightColor1 = glm::vec3(1.f, 1.f, 1.f);
+	static glm::vec3 Direction=glm::vec3(100,0,0);
+	static int SelectedLight = 1;
 	static float eye[3] = { 0,0,10 };
 	static float at[3] = { 0,0,0 };
 	static float up[3] = { 0,1,0 };
-	static bool Flat=1,G=0,P=0;
-	if ( scene.GetCameraCount() > 0) {
-		//eye[0]=scene.GetActiveCamera().GetEye().x;
-		//eye[1]=scene.GetActiveCamera().GetEye().y;
-		//eye[2]=scene.GetActiveCamera().GetEye().z;
-		//at[0] = scene.GetActiveCamera().GetAt().x;
-		//at[1] = scene.GetActiveCamera().GetAt().y;
-		//at[2] = scene.GetActiveCamera().GetAt().z;
-		//up[0] = scene.GetActiveCamera().GetUp().x;
-		//up[1] = scene.GetActiveCamera().GetUp().y;
-		//up[2] = scene.GetActiveCamera().GetUp().z;
-	}
+	static int PP = 1, alpha = 5, Flat = 0,Density=0,ActiveLight=1;
+
 	glm::vec3 lastEye = glm::vec3(eye[0], eye[1], eye[2]);
 	ImGui::SliderFloat("Scale Model", &scaleModel, 0.0f, 50.0f, "%.5f");
 	if(scene.GetCameraCount() > 0)scene.GetActiveCamera().ScaleModel(scaleModel);
@@ -299,21 +290,58 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		if (ImGui::Button("Add Light")) {
 			scene.AddLight(Utils::LoadLight());
 		}
-		//AmbientLightColor.clear();
-		//DiffuseLightColor.clear();
-		//SpecularLightColor.clear();
 		if (scene.GetLightCount() > 0) {
+			ImGui::SliderInt("Select Light", &SelectedLight,1, scene.GetLightCount());
+			AmbientLightColor1 = scene.GetLight(SelectedLight-1).GetAmbientColor();
+			DiffuseLightColor1 = scene.GetLight(SelectedLight-1).GetDiffuseColor();
+			SpecularLightColor1 = scene.GetLight(SelectedLight - 1).GetSpecularColor();
+			ActiveLight = scene.GetLight(SelectedLight - 1).IsActive();
+			LightTX = scene.GetLight(SelectedLight-1).GetXTranslation();
+			LightTY = scene.GetLight(SelectedLight-1).GetYTranslation();
+			LightTZ = scene.GetLight(SelectedLight-1).GetZTranslation();
+			LAngleX = scene.GetLight(SelectedLight-1).GetXRotation();
+			LAngleY = scene.GetLight(SelectedLight-1).GetYRotation();
+			LAngleZ = scene.GetLight(SelectedLight-1).GetZRotation();
+			Direction = scene.GetLight(SelectedLight - 1).GetPosition();
+			PP = scene.GetLight(SelectedLight - 1).GetPP();
+			ImGui::RadioButton("On", &ActiveLight, 1);
+			ImGui::SameLine();
+			ImGui::RadioButton("Off", &ActiveLight, 0);
+			scene.GetLight(SelectedLight - 1).ActivateLight(ActiveLight);
 			ImGui::ColorEdit3("Pick Ambient Color", (float*)&AmbientLightColor1);
 			ImGui::ColorEdit3("Pick Diffuse Color", (float*)&DiffuseLightColor1);
 			ImGui::ColorEdit3("Pick Specular Color", (float*)&SpecularLightColor1);
-			scene.GetActiveLight().SetAmbientColor(AmbientLightColor1);
-			scene.GetActiveLight().SetDiffuseColor(DiffuseLightColor1);
-			scene.GetActiveLight().SetSpecularColor(SpecularLightColor1);
-			ImGui::SliderFloat("Translate by x", &LightTX, 0, 2000);
-			ImGui::SliderFloat("Translate by y", &LightTY, 0, 2000);
+			scene.GetLight(SelectedLight-1).SetAmbientColor(AmbientLightColor1);
+			scene.GetLight(SelectedLight-1).SetDiffuseColor(DiffuseLightColor1);
+			scene.GetLight(SelectedLight-1).SetSpecularColor(SpecularLightColor1);
+			ImGui::SliderFloat("Translate by x", &LightTX, -1000, 2000);
+			ImGui::SliderFloat("Translate by y", &LightTY, -1000, 2000);
 			ImGui::SliderFloat("Translate by z", &LightTZ, -1000, 1000);
-				scene.GetActiveLight().Translate(0, LightTX, LightTY, LightTZ);
-
+			scene.GetLight(SelectedLight - 1).Translate(0, LightTX, LightTY, LightTZ);
+			ImGui::SliderInt("Intensity", &alpha, 0, 5);
+			scene.GetLight(SelectedLight - 1).SetAlpha(alpha);
+			ImGui::SliderFloat("Angle of Rotation By X", &LAngleX, 0.0f, 360.0f, "%.f");
+			ImGui::SliderFloat("Angle of Rotation By Y", &LAngleY, 0.0f, 360.0f, "%.f");
+			ImGui::SliderFloat("Angle of Rotation By Z", &LAngleZ, 0.0f, 360.0f, "%.f");
+			scene.GetLight(SelectedLight-1).Rotate(LAngleX,1, 0);
+			scene.GetLight(SelectedLight-1).Rotate(LAngleY, 1, 1);
+			scene.GetLight(SelectedLight-1).Rotate(LAngleZ, 1, 2);
+			ImGui::SliderFloat("Set X Direction", &Direction[0], -10,10);
+			ImGui::SliderFloat("Set Y Direction", &Direction[1], -10,10);
+			ImGui::SliderFloat("Set Z Direction", &Direction[2], -10,10);
+			ImGui::RadioButton("Point", &PP,1);
+			ImGui::SameLine();
+			ImGui::RadioButton("Parallel", &PP,0);
+			scene.GetLight(SelectedLight - 1).SetPointParallel(PP);
+			scene.GetLight(SelectedLight - 1).SetPosition(Direction);
+			ImGui::Checkbox("Activate Fog", &Fog);
+			scene.ActivateFog(Fog);
+			if (Fog) {
+				ImGui::Checkbox("Linear Fog", &Linear);
+				scene.SetLinearFog(Linear);
+				ImGui::SliderInt("Fog Density",&Density, 0, 100);
+				scene.SetFogDensity(Density);
+			}
 		}
 		ImGui::End();
 
@@ -368,21 +396,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			scene.GetActiveCamera().SetAmbientColor(AmbientColor);
 			scene.GetActiveCamera().SetDiffuseColor(DiffuseColor);
 			scene.GetActiveCamera().SetSpecularColor(SpecularColor);
-			if (ImGui::Checkbox("Flat Shading", &Flat) ){
-				G=0;
-				P=0;
-				scene.GetActiveCamera().SetShadingType(0);
-			}
-			if (ImGui::Checkbox("Gouraud Shading", &G)) {
-				Flat = 0;
-				P = 0;
-				scene.GetActiveCamera().SetShadingType(1);
-			}
-			if (ImGui::Checkbox("Phong Shading", &P)) {
-				Flat = 0;
-				G = 0;
-				scene.GetActiveCamera().SetShadingType(2);
-			}
+			ImGui::RadioButton("Flat Shading", &Flat, 0);
+			ImGui::SameLine();
+			ImGui::RadioButton("Gouraud Shading", &Flat, 1);
+			ImGui::SameLine();
+			ImGui::RadioButton("Phong Shading", &Flat, 2);
+            scene.GetActiveCamera().SetShadingType(Flat);
+			
 		ImGui::End();
 	}
 

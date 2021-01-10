@@ -7,7 +7,8 @@ Scene::Scene() :
 	active_light_index_(0),
 	active_model_index_(0)
 {
-
+	LinearFog = 0;
+	ActivatedFog = 0;
 }
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& mesh_model)
@@ -99,4 +100,44 @@ void Scene::SetActiveLightIndex(int index)
 int Scene::GetActiveLightIndex() const
 {
 	return active_light_index_;
+}
+
+float Scene::GetFogBegin() {
+	return FogBegin;
+}
+
+float Scene::GetFogEnd() {
+	return FogEnd;
+}
+
+void Scene::SetFogBegin(float b) {
+	FogBegin = b;
+}
+
+void Scene::SetFogEnd(float e) {
+	FogEnd = e;
+}
+
+void Scene::SetFogDensity(int d) {
+	FogDensity = d;
+}
+
+int Scene::GetFogDensity() {
+	return FogDensity;
+}
+
+void Scene::SetLinearFog(bool l) {
+	LinearFog = l;
+}
+
+bool  Scene::GetLinearFog() {
+	return LinearFog;
+}
+
+void Scene::ActivateFog(bool f) {
+	ActivatedFog = f;
+}
+
+bool Scene::IsFogActivated() {
+	return ActivatedFog;
 }

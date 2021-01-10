@@ -46,9 +46,9 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	//	i++;
 	//}
 	AmbientColor = glm::vec3(0, 0, 255);
-	DiffuseColor = glm::vec3(0, 0, 255);
-	SpecularColor = glm::vec3(0, 0, 255);
+	DiffuseColor = glm::vec3(0, 0, 255); 
 	GrayScale = false;
+	SpecularColor = glm::vec3(0, 0, 255);
 	ZbufferAlgo = false;
 	 ShadingType = 0;
 }
