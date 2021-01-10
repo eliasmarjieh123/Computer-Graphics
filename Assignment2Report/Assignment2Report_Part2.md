@@ -15,10 +15,10 @@ the 3 colors(R,G,B) for the model. All those actions can be done beside
 the other options built in previous assignments.
 
 Cow model with 2 point light sources in Flat shading abd both lights are translated:
-------------------------------------------------------------------------------------
+=======================================================
 
 Colors:
-=======
+---------
 
 Light Ambient Color= (224,42,42) Light Diffuse Color= (255,0,0) Light
 SpecularColor= (214,44,44) Model Ambient Color= (70,162,165) Model
