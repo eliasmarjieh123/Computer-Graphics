@@ -295,7 +295,7 @@ void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, int i,glm:
 					position = l.GetTransformation() * glm::vec4(l.GetPosition(), 1);
 				}
 				else {
-					position = l.GetPosition();
+					position = l.GetDirection();
 				}
 				if (l.GetIfPoint()) {
 					color = color + CalculateColor(l.GetAlpha(), mesh.GetRotation() * (glm::vec4(mesh.GetNormal(i), 2) - glm::vec4(mesh.GetCenter(i), 1)), glm::normalize(glm::vec4(position, 1) - t * glm::vec4(mesh.GetCenter(i), 1)), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
@@ -349,7 +349,7 @@ void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, int i,glm:
 								v3Color = CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(vn3, 1), glm::normalize(position - v3), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
 							}
 							else {
-								position = l.GetPosition();
+								position = l.GetDirection();
 								v1Color = CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(vn1, 1), glm::normalize(position), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
 								v2Color = CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(vn2, 1), glm::normalize(position), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
 								v3Color = CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(vn3, 1), glm::normalize(position), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
@@ -394,11 +394,11 @@ void Renderer::FillTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, int i,glm:
 						if (l.IsActive()) {
 							if (l.GetIfPoint()) {
 								position = l.GetTransformation() * glm::vec4(l.GetPosition(), 1);
-								color = CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(PixelNormal, 1), glm::normalize(position - Z), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
+								color = color+CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(PixelNormal, 1), glm::normalize(position - Z), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
 							}
 							else {
-								position = l.GetPosition();
-								color = CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(PixelNormal, 1), glm::normalize(position), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
+								position = l.GetDirection();
+								color = color+CalculateColor(l.GetAlpha(), mesh.GetRotation() * glm::vec4(PixelNormal, 1), glm::normalize(position), mesh.GetAmbientColor(), mesh.GetDiffuseColor(), mesh.GetSpecularColor(), l.GetAmbientColor(), l.GetDiffuseColor(), l.GetSpecularColor(), v);
 							}
 						}
 					}

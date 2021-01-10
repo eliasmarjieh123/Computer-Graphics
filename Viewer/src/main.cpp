@@ -302,7 +302,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			LAngleX = scene.GetLight(SelectedLight-1).GetXRotation();
 			LAngleY = scene.GetLight(SelectedLight-1).GetYRotation();
 			LAngleZ = scene.GetLight(SelectedLight-1).GetZRotation();
-			Direction = scene.GetLight(SelectedLight - 1).GetPosition();
+			Direction = scene.GetLight(SelectedLight - 1).GetDirection();
 			PP = scene.GetLight(SelectedLight - 1).GetPP();
 			ImGui::RadioButton("On", &ActiveLight, 1);
 			ImGui::SameLine();
@@ -333,7 +333,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			ImGui::SameLine();
 			ImGui::RadioButton("Parallel", &PP,0);
 			scene.GetLight(SelectedLight - 1).SetPointParallel(PP);
-			scene.GetLight(SelectedLight - 1).SetPosition(Direction);
+			scene.GetLight(SelectedLight - 1).SetDirection(Direction);
 			ImGui::Checkbox("Activate Fog", &Fog);
 			scene.ActivateFog(Fog);
 			if (Fog) {

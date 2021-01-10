@@ -31,12 +31,15 @@ public:
 	float GetYRotation();
 	float GetZRotation();
 	int   GetPP();
+	void Light::SetDirection(glm::vec3 d);
+	glm::vec3 Light::GetDirection();
 
 private:
 	glm::vec3 AmbientColor;
 	glm::vec3 DiffuseColor;
 	glm::vec3 SpecularColor;
 	glm::vec3 position;
+	glm::vec3 Direction;
 	glm::mat4x4 LocalXrotation;
 	glm::mat4x4 LocalZrotation;
 	glm::mat4x4 LocalYrotation;

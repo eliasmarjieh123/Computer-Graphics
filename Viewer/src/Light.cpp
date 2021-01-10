@@ -5,7 +5,8 @@
 Light::Light() {
 	AmbientColor = glm::vec3(1.f, 1.f, 1.f);
 	DiffuseColor = glm::vec3(1.f, 1.f, 1.f);    
-	position = glm::vec3(100, 0, 0);
+	position = glm::vec3(0, 0, 0);
+	Direction = glm::vec3(0, 0, 0);
 	SpecularColor = glm::vec3(1.f, 1.f, 1.f);
 	Active = true;
     Transformation=LocalTranslate=LocalXrotation=LocalYrotation=LocalZrotation=WorldTranslate=WorldXrotation=WorldYrotation=WorldZrotation= glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -134,3 +135,11 @@ float Light::GetXRotation() { return xRotation; }
 float Light::GetYRotation() { return yRotation; }
 float Light::GetZRotation() { return zRotation; }
 int Light::GetPP() { return PointParallel; }
+
+void Light::SetDirection(glm::vec3 d) {
+	Direction = d;
+}
+
+glm::vec3 Light::GetDirection() {
+	return Direction;
+}
