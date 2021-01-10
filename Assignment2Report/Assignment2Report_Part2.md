@@ -75,12 +75,15 @@ Phong Shading:
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-PhongShading-PointLights.JPG)
 
 Linear fog on the teapot:
-=========================
-
+---------------------------
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/LinearFog.JPG)
-\#Fog with density 40:
+
+Fog with density 40:
+---------------------
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Fog-Density40.JPG)
-\#Fog with density 62:
+
+Fog with density 62:
+-----------------------
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Fog-Density62.JPG)
 
 Extra Photos:
