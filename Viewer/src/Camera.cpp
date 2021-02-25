@@ -7,14 +7,14 @@
 
 
 
-Camera::Camera(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, const std::string& model_name, float ascpectRatio) :MeshModel(faces, vertices, normals, model_name)
+Camera::Camera(std::vector<Face> faces, std::vector<glm::vec2> textureCoords,std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, const std::string& model_name, float ascpectRatio) :MeshModel(faces,textureCoords, vertices, normals, model_name)
 {
 	right_ = 100;
 	left_ = -100;
 	top_ = 100;
 	bottom_ = -100;
-	near_ = 0.1f;// 100;//100;
-	far_ =-1000.f;// -100;//-100;
+	near_ = 1.f;// 100;//100;
+	far_ =2000.f;// -100;//-100;
 	fovy_ = glm::radians(70.0f);
 	startingRight_ = 100;
 	startingLeft_ = -100;
@@ -50,7 +50,7 @@ Camera::~Camera()
 
 const glm::mat4x4 Camera::GetViewTransformation() const
 {
-	return CameraTransformation;
+	return LookAtMat_*glm::inverse(CameraTransformation);
 }
 
 void Camera::SetOrthographicProjection( float height,const float aspectRatio,const float zNear,const float zFar)
@@ -242,8 +242,8 @@ void Camera::ResetCamera() {
 	left_ = -100;
 	top_ = 100;
 	bottom_ = -100;
-	near_ = 0.100000f;// 100;//100;
-	far_ = -1000.00000f;// -100;//-100;
+	near_ = 1.f;// 100;//100;
+	far_ = 2000.f;// -100;//-100;
 	fovy_ = glm::radians(70.0f);
 	startingRight_ = 100;
 	startingLeft_ = -100;

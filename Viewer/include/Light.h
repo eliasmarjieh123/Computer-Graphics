@@ -1,11 +1,21 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <string>
+#include "ShaderProgram.h"
+
+struct Vertex1
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 textureCoords;
+};
 class Light
 {
 	
 public:
 	Light();
+	GLuint GetVao();
+	GLuint GetVbo();
 	void SetAmbientColor(glm::vec3 color);
 	void SetDiffuseColor(glm::vec3 color);
 	void SetSpecularColor(glm::vec3 color);
@@ -33,8 +43,8 @@ public:
 	int   GetPP();
 	void Light::SetDirection(glm::vec3 d);
 	glm::vec3 Light::GetDirection();
-
 private:
+	glm::vec3 parallelLights = glm::vec3(0.05f, 0.f, 0.f);
 	glm::vec3 AmbientColor;
 	glm::vec3 DiffuseColor;
 	glm::vec3 SpecularColor;
@@ -58,5 +68,7 @@ private:
 	bool Active;
 	int alphaSpecular;
 	int PointParallel;
+	GLuint LightVao;
+	GLuint LightVbo;
 };
 

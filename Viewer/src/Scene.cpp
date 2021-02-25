@@ -26,9 +26,9 @@ MeshModel& Scene::GetModel(int index) const
 	return *mesh_models_[index];
 }
 
-MeshModel& Scene::GetActiveModel() const
+std::shared_ptr<MeshModel> Scene::GetActiveModel() const
 {
-	return *mesh_models_[active_model_index_];
+	return mesh_models_[active_model_index_];
 }
 
 void Scene::AddCamera(const std::shared_ptr<Camera>& camera)

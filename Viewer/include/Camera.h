@@ -4,7 +4,7 @@
 class Camera:public MeshModel{
 public:
 	Camera();
-	Camera(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, const std::string& model_name, float ascpectRatio);
+	Camera(std::vector<Face> faces, std::vector<glm::vec2> textureCoords, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, const std::string& model_name, float ascpectRatio);
 	virtual ~Camera();
 
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);

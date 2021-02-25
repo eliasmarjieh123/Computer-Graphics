@@ -64,6 +64,8 @@ int main(int argc, char **argv)
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
+	renderer.LoadShaders();
+	renderer.LoadTextures();
 	Scene scene = Scene();
 	ImGuiIO& io = SetupDearImgui(window);
 	glfwSetScrollCallback(window, ScrollCallback);
@@ -159,10 +161,13 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 			// Left mouse button is down
 		}
 	}
+	glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
+	glEnable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//added
 
-	renderer.ClearColorBuffer(clear_color);
+	//renderer.ClearColorBuffer(clear_color);
 	renderer.Render(scene);
-	renderer.SwapBuffers();
+	//renderer.SwapBuffers();
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwMakeContextCurrent(window);
@@ -197,7 +202,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				nfdresult_t result = NFD_OpenDialog("obj;", NULL, &outPath);
 				if (result == NFD_OKAY)
 				{
-					scene.AddCamera(Utils::LoadCamera(outPath));
+					if (scene.GetCameraCount() == 0) {
+						scene.AddCamera(Utils::LoadCamera(outPath));
+						scene.AddModel(Utils::LoadMeshModel(outPath));
+						scene.SetActiveModelIndex(0);
+					}
+					else {
+						scene.AddModel(Utils::LoadMeshModel(outPath));
+						scene.SetActiveModelIndex(scene.GetModelCount()-1);
+					}
 					//scene.GetActiveCamera().printFacesAndVertices();
 					free(outPath);
 				}
@@ -233,7 +246,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	{
 		static float f = 0.0f;
 		static int counter = 0;
-
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 	//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
@@ -257,7 +269,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 3. Show another simple window.
-	static float scaleModel=0.75f,FOV=70.0f,orthow = 20.f, xscale = 1, yscale = 1, zscale = 1, ztranslate = 0, xtranslate = 0, ytranslate = 0, AnglewX = 0, AnglewY = 0, AnglewZ = 0, AngleX = 0, AngleY = 0, AngleZ = 0, xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
+	static int ActiveModel = 1;
+	static float scaleModel=0.75f,FOV=70.0f,orthow = 20.f, xscale = 0, yscale = 0, zscale = 0, ztranslate = 0, xtranslate = 0, ytranslate = 0, AnglewX = 0, AnglewY = 0, AnglewZ = 0, AngleX = 0, AngleY = 0, AngleZ = 0, xscalew = 1, yscalew = 1, zscalew = 1, ztranslatew = 0, xtranslatew = 0, ytranslatew = 0;
 	static float  LAngleX = 0, LAngleY = 0, LAngleZ = 0,Camxscale = 1, Camyscale = 1, Camzscale = 1, Camztranslate = 0, Camxtranslate = 0, Camytranslate = 0, CamAnglewX = 0, CamAnglewY = 0, CamAnglewZ = 0, CamAngleX = 0, CamAngleY = 0, CamAngleZ = 0, Camxscalew = 1, Camyscalew = 1, Camzscalew = 1, Camztranslatew = 0, Camxtranslatew = 0, Camytranslatew = 0;
 	static float LightTX = 0, LightTY = 0, LightTZ = 0;
 	static bool ZB = false, GS = false,Fog=false,Linear=false;
@@ -278,13 +291,19 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	static float eye[3] = { 0,0,10 };
 	static float at[3] = { 0,0,0 };
 	static float up[3] = { 0,1,0 };
-	static int PP = 1, alpha = 5, Flat = 0,Density=0,ActiveLight=1;
-
+	static int PP = 1, alpha = 5, Flat = 0, Density = 0, ActiveLight = 1, method=0;
 	glm::vec3 lastEye = glm::vec3(eye[0], eye[1], eye[2]);
+	ImGui::SliderInt("Select Model", &ActiveModel, 1, scene.GetModelCount());
+	if (scene.GetCameraCount() > 0) {
+		scaleModel = scene.GetModel(ActiveModel - 1).GetScaleFactor();
+		scene.GetModel(ActiveModel - 1).ScaleModel(scaleModel);
+	}
 	ImGui::SliderFloat("Scale Model", &scaleModel, 0.0f, 50.0f, "%.5f");
-	if(scene.GetCameraCount() > 0)scene.GetActiveCamera().ScaleModel(scaleModel);
-	ImGui::Checkbox("Activate Z-Buffer Algorithm", &ZB);
-	ImGui::Checkbox("Activate Gray Scale", &GS);
+	if (scene.GetCameraCount() > 0) {
+		scene.GetModel(ActiveModel - 1).ScaleModel(scaleModel);
+	}
+	//ImGui::Checkbox("Activate Z-Buffer Algorithm", &ZB);
+	//ImGui::Checkbox("Activate Gray Scale", &GS);
 	if (show_lights_window) {
 		ImGui::Begin("Lights Window", &show_lights_window);
 		if (ImGui::Button("Add Light")) {
@@ -302,8 +321,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			LAngleX = scene.GetLight(SelectedLight-1).GetXRotation();
 			LAngleY = scene.GetLight(SelectedLight-1).GetYRotation();
 			LAngleZ = scene.GetLight(SelectedLight-1).GetZRotation();
-			Direction = scene.GetLight(SelectedLight - 1).GetDirection();
 			PP = scene.GetLight(SelectedLight - 1).GetPP();
+			if(!PP){ Direction = scene.GetLight(SelectedLight - 1).GetDirection(); }
+			else{ Direction = scene.GetLight(SelectedLight - 1).GetPosition(); }
 			ImGui::RadioButton("On", &ActiveLight, 1);
 			ImGui::SameLine();
 			ImGui::RadioButton("Off", &ActiveLight, 0);
@@ -318,7 +338,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			ImGui::SliderFloat("Translate by y", &LightTY, -1000, 2000);
 			ImGui::SliderFloat("Translate by z", &LightTZ, -1000, 1000);
 			scene.GetLight(SelectedLight - 1).Translate(0, LightTX, LightTY, LightTZ);
-			ImGui::SliderInt("Intensity", &alpha, 0, 5);
+			ImGui::SliderInt("Specular Alpha", &alpha, 0, 5);
 			scene.GetLight(SelectedLight - 1).SetAlpha(alpha);
 			ImGui::SliderFloat("Angle of Rotation By X", &LAngleX, 0.0f, 360.0f, "%.f");
 			ImGui::SliderFloat("Angle of Rotation By Y", &LAngleY, 0.0f, 360.0f, "%.f");
@@ -326,14 +346,19 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			scene.GetLight(SelectedLight-1).Rotate(LAngleX,1, 0);
 			scene.GetLight(SelectedLight-1).Rotate(LAngleY, 1, 1);
 			scene.GetLight(SelectedLight-1).Rotate(LAngleZ, 1, 2);
-			ImGui::SliderFloat("Set X Direction", &Direction[0], -10,10);
-			ImGui::SliderFloat("Set Y Direction", &Direction[1], -10,10);
-			ImGui::SliderFloat("Set Z Direction", &Direction[2], -10,10);
+			ImGui::SliderFloat("Set X Position/Direction", &Direction[0], -10,1000);
+			ImGui::SliderFloat("Set Y Position/Direction", &Direction[1], -10,1000);
+			ImGui::SliderFloat("Set Z Position/Direction", &Direction[2], -10,1000);
 			ImGui::RadioButton("Point", &PP,1);
 			ImGui::SameLine();
 			ImGui::RadioButton("Parallel", &PP,0);
+			if (!PP) {
+				scene.GetLight(SelectedLight - 1).SetDirection(Direction);
+			}
+			else {
+				scene.GetLight(SelectedLight - 1).SetPosition(Direction);
+			}
 			scene.GetLight(SelectedLight - 1).SetPointParallel(PP);
-			scene.GetLight(SelectedLight - 1).SetDirection(Direction);
 			ImGui::Checkbox("Activate Fog", &Fog);
 			scene.ActivateFog(Fog);
 			if (Fog) {
@@ -348,8 +373,31 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 	if ( scene.GetCameraCount() > 0)
 	{
-		scene.GetActiveCamera().ActivateGrayScale(GS);
-		scene.GetActiveCamera().ActivateZbufferAlgo(ZB);
+		//scene.GetActiveCamera().ActivateGrayScale(GS);
+		//scene.GetActiveCamera().ActivateZbufferAlgo(ZB);
+		 
+		xscale = scene.GetModel(ActiveModel-1).GetXScaleLocal();
+		yscale = scene.GetModel(ActiveModel-1).GetYScaleLocal();
+		zscale = scene.GetModel(ActiveModel-1).GetZScaleLocal();
+		xtranslate = scene.GetModel(ActiveModel-1).GetXTranslateLocal();
+		ytranslate = scene.GetModel(ActiveModel-1).GetYTranslateLocal();
+		ztranslate = scene.GetModel(ActiveModel-1).GetZTranslateLocal();
+		AnglewX=scene.GetModel(ActiveModel-1).GetXRotationAngleWorld();
+		AnglewY=scene.GetModel(ActiveModel-1).GetYRotationAngleWorld();
+		AnglewZ=scene.GetModel(ActiveModel-1).GetZRotationAngleWorld();
+		AngleX =scene.GetModel(ActiveModel-1).GetXRotationAngleLocal();
+		AngleY =scene.GetModel(ActiveModel-1).GetYRotationAngleLocal();
+		AngleZ =scene.GetModel(ActiveModel-1).GetZRotationAngleLocal();
+		xscalew = scene.GetModel(ActiveModel-1).GetXScaleWorld();
+		yscalew = scene.GetModel(ActiveModel-1).GetYScaleWorld();
+		zscalew = scene.GetModel(ActiveModel-1).GetZScaleWorld();
+		xtranslatew =scene.GetModel(ActiveModel-1).GetXTranslateWorld();
+		ytranslatew =scene.GetModel(ActiveModel-1).GetYTranslateWorld();
+		ztranslatew =scene.GetModel(ActiveModel-1).GetZTranslateWorld();
+		AmbientColor =scene.GetModel(ActiveModel-1).GetAmbientColor();
+		DiffuseColor =scene.GetModel(ActiveModel-1).GetDiffuseColor();
+		SpecularColor =scene.GetModel(ActiveModel-1).GetSpecularColor();
+		method = scene.GetModel(ActiveModel - 1).GetMethod();
 	}
 	if (show_another_window)
 	{
@@ -361,51 +409,55 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 	if (show_what_to_show_window && scene.GetCameraCount() > 0)
 	{
-
 		ImGui::Begin("Show Window", &show_what_to_show_window);
-		ImGui::Checkbox("Draw Normal Per Vertex", &Draw_Vertex_Normal);
-		ImGui::Checkbox("Draw Normal Per Face", &Draw_Face_Normal);
-		ImGui::Checkbox("Draw Bounding Box", &Draw_Bounding_Box);
-		if (Draw_Vertex_Normal) {
-			scene.GetActiveCamera().Set_ShowVertexNormals(1);
-			ImGui::ColorEdit3("Pick Vertex Normals Color", (float*)&VertexNormalsColor);
-			scene.GetActiveCamera().Set_ShowVertexNormalsColor(VertexNormalsColor);
-		}
-		else {
-			scene.GetActiveCamera().Set_ShowVertexNormals(0);
-		}
-		if (Draw_Face_Normal) {
-			scene.GetActiveCamera().Set_ShowFaceNormals(1);
-			ImGui::ColorEdit3("Pick Face Normals Color", (float*)&FaceNormalsColor);
-			scene.GetActiveCamera().Set_ShowFaceNormalsColor(FaceNormalsColor);
-		}
-		else {
-			scene.GetActiveCamera().Set_ShowFaceNormals(0);
-		}
-		if (Draw_Bounding_Box) {
-			scene.GetActiveCamera().Set_ShowBoundingBox(1);
-			ImGui::ColorEdit3("Pick Bounding Box Color", (float*)&BoundingBoxColor);
-			scene.GetActiveCamera().Set_ShowBoundingBoxColor(BoundingBoxColor);
-		}
-		else {
-			scene.GetActiveCamera().Set_ShowBoundingBox(0);
-		}
+		//ImGui::Checkbox("Draw Normal Per Vertex", &Draw_Vertex_Normal);
+		//ImGui::Checkbox("Draw Normal Per Face", &Draw_Face_Normal);
+		//ImGui::Checkbox("Draw Bounding Box", &Draw_Bounding_Box);
+		//if (Draw_Vertex_Normal) {
+		//	scene.GetActiveCamera().Set_ShowVertexNormals(1);
+		//	ImGui::ColorEdit3("Pick Vertex Normals Color", (float*)&VertexNormalsColor);
+		//	scene.GetActiveCamera().Set_ShowVertexNormalsColor(VertexNormalsColor);
+		//}
+		//else {
+		//	scene.GetActiveCamera().Set_ShowVertexNormals(0);
+		//}
+		//if (Draw_Face_Normal) {
+		//	scene.GetActiveCamera().Set_ShowFaceNormals(1);
+		//	ImGui::ColorEdit3("Pick Face Normals Color", (float*)&FaceNormalsColor);
+		//	scene.GetActiveCamera().Set_ShowFaceNormalsColor(FaceNormalsColor);
+		//}
+		//else {
+		//	scene.GetActiveCamera().Set_ShowFaceNormals(0);
+		//}
+		//if (Draw_Bounding_Box) {
+		//	scene.GetActiveCamera().Set_ShowBoundingBox(1);
+		//	ImGui::ColorEdit3("Pick Bounding Box Color", (float*)&BoundingBoxColor);
+		//	scene.GetActiveCamera().Set_ShowBoundingBoxColor(BoundingBoxColor);
+		//}
+		//else {
+		//	scene.GetActiveCamera().Set_ShowBoundingBox(0);
+		//}
 		ImGui::ColorEdit3("Pick Ambient Color", (float*)&AmbientColor);
 		ImGui::ColorEdit3("Pick Diffuse Color", (float*)&DiffuseColor);
 		ImGui::ColorEdit3("Pick Specular Color", (float*)&SpecularColor);
-			scene.GetActiveCamera().SetAmbientColor(AmbientColor);
-			scene.GetActiveCamera().SetDiffuseColor(DiffuseColor);
-			scene.GetActiveCamera().SetSpecularColor(SpecularColor);
-			ImGui::RadioButton("Flat Shading", &Flat, 0);
-			ImGui::SameLine();
-			ImGui::RadioButton("Gouraud Shading", &Flat, 1);
-			ImGui::SameLine();
-			ImGui::RadioButton("Phong Shading", &Flat, 2);
-            scene.GetActiveCamera().SetShadingType(Flat);
+		ImGui::RadioButton("Wire", &method, 0);
+		ImGui::RadioButton("Texture", &method, 1);
+		ImGui::RadioButton("Phong", &method, 2);
+		ImGui::RadioButton("One color (Ambient)", &method, 3);
+		ImGui::RadioButton("Toon Shading", &method, 4);
+		scene.GetModel(ActiveModel - 1).SetAmbientColor(AmbientColor);
+		scene.GetModel(ActiveModel - 1).SetDiffuseColor(DiffuseColor);
+		scene.GetModel(ActiveModel - 1).SetSpecularColor(SpecularColor);
+		scene.GetModel(ActiveModel - 1).SetMethod(method);
+			//ImGui::RadioButton("Flat Shading", &Flat, 0);
+			//ImGui::SameLine();
+			//ImGui::RadioButton("Gouraud Shading", &Flat, 1);
+			//ImGui::SameLine();
+			//ImGui::RadioButton("Phong Shading", &Flat, 2);
+           //scene.GetActiveCamera().SetShadingType(Flat);
 			
 		ImGui::End();
 	}
-
 
 	if (show_transformations_window && scene.GetCameraCount() > 0)
 	{
@@ -421,10 +473,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Scale by x", &xscale, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by y", &yscale, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by z", &zscale, 0.0f, 3.0f, "%.5f");
-							scene.GetActiveCamera().ScaleVertices("local", xscale, yscale, zscale);
+						scene.GetModel(ActiveModel - 1).ScaleVertices("local", xscale, yscale, zscale,scaleModel);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveCamera().ResetModel();
+							scene.GetModel(ActiveModel - 1).ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -450,10 +502,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Translate by x", &xtranslate, -10.000f, 10.000f,"%.3f");
 						ImGui::SliderFloat("Translate by y", &ytranslate, -10.000f, 10.000f, "%.3f");
 						ImGui::SliderFloat("Translate by z", &ztranslate, -10.000f, 10.000f, "%.3f");
-						scene.GetActiveCamera().TranslateVertices("local", xtranslate, ytranslate, ztranslate);
+						scene.GetModel(ActiveModel - 1).TranslateVertices("local", xtranslate, ytranslate, ztranslate);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveCamera().ResetModel();
+							scene.GetModel(ActiveModel - 1).ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -480,12 +532,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Angle of Rotation By X", &AngleX, 0.0f, 360.0f, "%.f");
 						ImGui::SliderFloat("Angle of Rotation By Y", &AngleY, 0.0f, 360.0f, "%.f");
 						ImGui::SliderFloat("Angle of Rotation By Z", &AngleZ, 0.0f, 360.0f, "%.f");
-							scene.GetActiveCamera().RotateModel("local", 0, AngleX);
-							scene.GetActiveCamera().RotateModel("local", 1, AngleY );
-							scene.GetActiveCamera().RotateModel("local", 2, AngleZ );
+						scene.GetModel(ActiveModel - 1).RotateModel("local", 0, AngleX);
+						scene.GetModel(ActiveModel - 1).RotateModel("local", 1, AngleY );
+						scene.GetModel(ActiveModel - 1).RotateModel("local", 2, AngleZ );
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveCamera().ResetModel();
+							scene.GetModel(ActiveModel - 1).ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -519,10 +571,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Scale by x", &xscalew, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by y", &yscalew, 0.0f, 3.0f, "%.5f");
 						ImGui::SliderFloat("Scale by z", &zscalew, 0.0f, 3.0f, "%.5f");
-							scene.GetActiveCamera().ScaleVertices("world", xscalew, yscalew, zscalew);
+						scene.GetModel(ActiveModel - 1).ScaleVertices("world", xscalew, yscalew, zscalew,0.f);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveCamera().ResetModel();
+							scene.GetModel(ActiveModel - 1).ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -548,10 +600,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Translate by x", &xtranslatew, -10.000f, 10.000f, "%.3f");
 						ImGui::SliderFloat("Translate by y", &ytranslatew, -10.000f, 10.000f, "%.3f");
 						ImGui::SliderFloat("Translate by z", &ztranslatew, -10.000f, 10.000f, "%.3f");
-							scene.GetActiveCamera().TranslateVertices("world", xtranslatew, ytranslatew, ztranslatew);
+						scene.GetModel(ActiveModel - 1).TranslateVertices("world", xtranslatew, ytranslatew, ztranslatew);
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveCamera().ResetModel();
+							scene.GetModel(ActiveModel - 1).ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;
@@ -578,12 +630,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 						ImGui::SliderFloat("Angle of Rotation By X", &AnglewX, 0.0f, 360.0f, "%.f");
 						ImGui::SliderFloat("Angle of Rotation By Y", &AnglewY, 0.0f, 360.0f, "%.f");
 						ImGui::SliderFloat("Angle of Rotation By Z", &AnglewZ, 0.0f, 360.0f, "%.f");
-							scene.GetActiveCamera().RotateModel("world", 0, AnglewX );
-							scene.GetActiveCamera().RotateModel("world", 1, AnglewY );
-							scene.GetActiveCamera().RotateModel("world", 2, AnglewZ );
+						scene.GetModel(ActiveModel - 1).RotateModel("world", 0, AnglewX );
+						scene.GetModel(ActiveModel - 1).RotateModel("world", 1, AnglewY );
+						scene.GetModel(ActiveModel - 1).RotateModel("world", 2, AnglewZ );
 						if (ImGui::Button("Reset Model"))
 						{
-							scene.GetActiveCamera().ResetModel();
+							scene.GetModel(ActiveModel - 1).ResetModel();
 							xscale = 1;
 							yscale = 1;
 							zscale = 1;

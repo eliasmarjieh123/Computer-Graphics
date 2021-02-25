@@ -4,13 +4,51 @@
 #include <cmath>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Utils.h"
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <random>
+#include <glm/gtc/matrix_transform.hpp>
+
+
+MeshModel::~MeshModel()
+{
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+}
+
+
 MeshModel::MeshModel(){}
 
-MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, const std::string& model_name) :
+MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec2> textureCoords, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, const std::string& model_name) :
 	faces_(faces),
+	textureCoords_(textureCoords),
 	vertices_(vertices),
 	normals_(normals)
 {
+	 Method=0;
+	 AngleX=0;
+	 AngleY=0;
+	 AngleZ=0;
+	 WAngleX=0;
+	 WAngleY=0;
+	 WAngleZ=0;
+	 TranslateX=0;
+	 TranslateY=0;
+	 TranslateZ=0;
+	 WTranslateX=0;
+	 WTranslateY=0;
+	 WTranslateZ=0;
+	 ScaleX=1;
+	 ScaleY=1;
+	 ScaleZ=1;
+	 WScaleX=1;
+	 WScaleY=1;
+	 WScaleZ=1;
+	 ScaleFactor = 0;
 	tLocalMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	sLocalMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	rXLocalMatrix = glm::mat4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -29,33 +67,69 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	ShowVertexNormals=0;
 	ShowFaceNormals=0;
 	ShowBoundingBox=0;
-	 ShowVertexNormalsColor=glm::vec3(0.8f,0.8f,0.8f);
-	 ShowFaceNormalsColor= glm::vec3(0.8f, 0.8f, 0.8f);
-	 ShowBoundingBoxColor= glm::vec3(0.8f, 0.8f, 0.8f);
+	ShowVertexNormalsColor=glm::vec3(0.8f,0.8f,0.8f);
+	ShowFaceNormalsColor= glm::vec3(0.8f, 0.8f, 0.8f);
+	ShowBoundingBoxColor= glm::vec3(0.8f, 0.8f, 0.8f);
 	//this->TranslateAndScaleVertices();
-	this->CalculateCenters();
-	this->CalculateFacesNormals();
+	//this->CalculateCenters();
+	//this->CalculateFacesNormals();
 	int i = 0;
-	//while (i < faces_.size()) {
-	//	glm::vec3 color;
-	//	color.x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
-	//	color.y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
-	//	color.z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX));
-	//	//std::cout << color.x << " " << color.y << " " << color.z << std::endl;
-	//	FacesColors.push_back(color);
-	//	i++;
-	//}
 	AmbientColor = glm::vec3(0, 0, 255);
 	DiffuseColor = glm::vec3(0, 0, 255); 
 	GrayScale = false;
 	SpecularColor = glm::vec3(0, 0, 255);
 	ZbufferAlgo = false;
-	 ShadingType = 0;
+	ShadingType = 0;
+
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<double> dist(0, 1);
+	color = glm::vec3(dist(mt), dist(mt), dist(mt));
+	VT = false;
+	modelVertices.reserve(3 * faces_.size());
+	for (int i = 0; i < faces_.size(); i++)
+	{
+	 Face currentFace = faces_.at(i);
+	 for (int j = 0; j < 3; j++)
+	   {
+		 Vertex vertex;
+		 int vertexIndex = currentFace.GetVertexIndex(j) - 1;
+		 int normalindex = currentFace.GetNormalIndex(j) - 1;
+		 int textureCoordsIndex = currentFace.GetTextureIndex(j) - 1;
+		 vertex.position = vertices[vertexIndex];
+		 if (normals.size() > 0) {
+			 vertex.normal = normals_[normalindex];
+		 }
+		 if (textureCoords.size() > 0){
+			 VT = true;
+			 vertex.textureCoords = textureCoords[textureCoordsIndex];
+		 }
+		 modelVertices.push_back(vertex);
+	   }
+	 }
+	 glGenVertexArrays(1, &vao);
+	 glGenBuffers(1, &vbo);
+
+	 glBindVertexArray(vao);
+	 glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	 glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(Vertex), &modelVertices[0], GL_STATIC_DRAW);
+
+	 // Vertex Positions
+	 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+	 glEnableVertexAttribArray(0);
+
+	 // Normals attribute
+	 glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3 * sizeof(GLfloat)));
+	 glEnableVertexAttribArray(1);
+
+	 // Vertex Texture Coords
+	 glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(6 * sizeof(GLfloat)));
+	 glEnableVertexAttribArray(2);
+
+	 // unbind to make sure other code does not change it somewhere else
+	 glBindVertexArray(0);
 }
 
-MeshModel::~MeshModel()
-{
-}
 
 const Face& MeshModel::GetFace(int index) const
 {
@@ -225,6 +299,24 @@ void MeshModel::TranslateAndScaleVertices(){
 }
 
 void MeshModel::ResetModel() {
+	AngleX = 0;
+	AngleY = 0;
+	AngleZ = 0;
+	WAngleX = 0;
+	WAngleY = 0;
+	WAngleZ = 0;
+	TranslateX = 0;
+	TranslateY = 0;
+	TranslateZ = 0;
+	WTranslateX = 0;
+	WTranslateY = 0;
+	WTranslateZ = 0;
+	ScaleX = 1;
+	ScaleY = 1;
+	ScaleZ = 1;
+	WScaleX = 1;
+	WScaleY = 1;
+	WScaleZ = 1;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			tWorldMatrix[i][j] = 0;
@@ -267,19 +359,31 @@ void MeshModel::ResetModel() {
 void MeshModel::TranslateVertices(char * lw,float x,float y,float z) {
 	if (strcmp(lw, "world") == 0) {
 		tWorldMatrix = glm::translate(glm::vec3(x, y, z));
+		WTranslateX = x;
+		WTranslateY = y;
+		WTranslateZ = z;
 	}
 	else {
 		tLocalMatrix = glm::translate(glm::vec3(x, y, z));
+		TranslateX = x;
+		TranslateY = y;
+		TranslateZ = z;
 	}
 	Transform();
 }
 
-void MeshModel::ScaleVertices(char* lw, float x, float y, float z) {
+void MeshModel::ScaleVertices(char* lw, float x, float y, float z,float ScaleFactor) {
 	if (strcmp(lw, "world") == 0) {
 		sWorldMatrix = glm::scale(glm::vec3(x, y, z));
+		WScaleX = x;
+		WScaleY = y;
+		WScaleZ = z;
 	}
 	else {
-		sLocalMatrix = glm::scale(glm::vec3(x, y, z));
+		sLocalMatrix =  glm::scale(glm::vec3(x + ScaleFactor, y + ScaleFactor, z + ScaleFactor));
+		ScaleX = x;
+		ScaleY = y;
+		ScaleZ = z;
 	}
 	Transform();
 }
@@ -290,7 +394,9 @@ void MeshModel::Transform() {
 	glm::vec4 temp1;
 	rWorldMatrix = rXWorldMatrix * rYWorldMatrix * rZWorldMatrix;
 	rLocalMatrix= rXLocalMatrix * rYLocalMatrix * rZLocalMatrix;
-	Transformation =  sWorldMatrix * rXWorldMatrix*rYWorldMatrix*rZWorldMatrix * tWorldMatrix *sLocalMatrix * tLocalMatrix *rXLocalMatrix*rYLocalMatrix*rZLocalMatrix;
+	WorldTransformation = sWorldMatrix * rWorldMatrix * tWorldMatrix;
+	LocalTransformation = sLocalMatrix * tLocalMatrix * rLocalMatrix;
+	Transformation =  sWorldMatrix * rWorldMatrix * tWorldMatrix *sLocalMatrix * tLocalMatrix *rLocalMatrix ;
 }
 
 glm::vec3 MeshModel::GetVertex(int index)const {
@@ -316,9 +422,11 @@ void MeshModel::RotateModel(char * lw,int axis, float angle) {
 		 mat = glm::rotate(glm::radians(angle), glm::vec3(0, 0, 1));
 		 if (strcmp(lw, "local") == 0) {
 			 rZLocalMatrix = mat ;
+			 AngleZ = angle;
 		 }
 		 else {
 			 rZWorldMatrix = mat;
+			 WAngleZ = angle;
 		 }
 	}
 	else if (axis == 1) {
@@ -326,9 +434,11 @@ void MeshModel::RotateModel(char * lw,int axis, float angle) {
 		mat = glm::rotate(glm::radians(angle), glm::vec3(0, 1, 0));
 		if (strcmp(lw, "local") == 0) {
 			rYLocalMatrix = mat;
+			AngleY = angle;
 		}
 		else {
 			rYWorldMatrix = mat;
+			WAngleY = angle;
 		}
 	}
 	else {
@@ -336,9 +446,11 @@ void MeshModel::RotateModel(char * lw,int axis, float angle) {
 	 mat = glm::rotate(glm::radians(angle),glm::vec3(1,0,0));
 	 if (strcmp(lw, "local") == 0) {
 		 rXLocalMatrix = mat;
+		 AngleX = angle;
 	 }
 	 else {
 		 rXWorldMatrix = mat;
+		 WAngleX = angle;
 	 }
 	}
 	Transform();
@@ -495,6 +607,7 @@ float MeshModel::GetMaxW() {return maxW;}
 
 void MeshModel::ScaleModel(float scale) {
 	ModelScale = glm::scale(glm::vec3(scale, scale, scale));
+	ScaleFactor = scale;
 }
 
 glm::mat4x4 MeshModel::GetModelScale() {
@@ -561,3 +674,57 @@ int MeshModel::GetShadingType() {
 glm::mat4x4 MeshModel::GetRotation() {
 	return rWorldMatrix * rLocalMatrix;
 }
+
+GLuint MeshModel::GetVAO() const
+{
+	return vao;
+}
+
+const glm::vec3& MeshModel::GetColor() const
+{
+	return color;
+}
+
+void MeshModel::SetColor(const glm::vec3& color)
+{
+	this->color = color;
+}
+
+const std::vector<Vertex>& MeshModel::GetModelVertices()
+{
+	return modelVertices;
+}
+
+
+glm::mat4x4 MeshModel::GetWorldTransformation() {
+	return WorldTransformation;
+}
+
+glm::mat4x4 MeshModel::GetModelTransformation() {
+	return LocalTransformation;
+}
+
+float MeshModel::GetXRotationAngleLocal() { return AngleX; }
+float MeshModel::GetYRotationAngleLocal() { return AngleY; }
+float MeshModel::GetZRotationAngleLocal() { return AngleZ; }
+float MeshModel::GetZRotationAngleWorld() { return WAngleZ; }
+float MeshModel::GetYRotationAngleWorld() { return WAngleY; }
+float MeshModel::GetXRotationAngleWorld() { return WAngleX; }
+float MeshModel::GetXTranslateLocal() { return TranslateX; }
+float MeshModel::GetYTranslateLocal() { return TranslateY; }
+float MeshModel::GetZTranslateLocal() { return TranslateZ; }
+float MeshModel::GetZTranslateWorld() { return WTranslateZ; }
+float MeshModel::GetYTranslateWorld() { return WTranslateY; }
+float MeshModel::GetXTranslateWorld() { return WTranslateX; }
+float MeshModel::GetXScaleLocal() { return ScaleX; }
+float MeshModel::GetYScaleLocal() { return ScaleY; }
+float MeshModel::GetZScaleLocal() { return ScaleZ; }
+float MeshModel::GetZScaleWorld() { return WScaleZ; }
+float MeshModel::GetYScaleWorld() { return WScaleY; }
+float MeshModel::GetXScaleWorld() { return WScaleX; }
+float MeshModel::GetScaleFactor() { return ScaleFactor; }
+
+int MeshModel::GetMethod() { return Method; }
+void MeshModel::SetMethod(int m) { Method = m; }
+
+bool MeshModel::GetIfThereIsVT() { return VT; }

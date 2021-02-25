@@ -721,55 +721,171 @@ void Renderer::ClearZbuffer(int w,int h) {
 
 void Renderer::Render(Scene& scene)
 {
-	// TODO: Replace this code with real scene rendering code
-	int half_width = viewport_width_ / 2;
-	int half_height = viewport_height_ / 2;
-	int thickness = 15;
-	int r = 10, steps = 50;
-	float angle = 2.f * PI / steps;
-	float w =float( GetViewportWidth());
-	float h = float(GetViewportHeight());
-	Light l;
-	ClearZbuffer(w,h);
-	if (scene.GetLightCount() > 0) {
-		for (int j = 0; j < scene.GetLightCount(); j++) {
-			l = scene.GetLight(j);
-			if (l.IsActive()) {
-				if (l.GetIfPoint()) {
-					for (int i = 0; i <= steps; i++) {
-						glm::vec2 point1 = l.GetTransformation() * glm::vec4(l.GetPosition(), 1);
-						glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));
-						DrawLine(point1, point2, l.GetAmbientColor());
-					}
-				}
+
+	int cameraCount = scene.GetCameraCount();
+	int LightsCount=scene.GetLightCount();
+	glm::vec3 AmbientColor[10];
+	glm::vec3 DiffuseColor[10];
+	glm::vec3 SpecularColor[10];
+	glm::vec3 lightsPositions[10];
+	glm::mat4x4 lightTransformations[10];
+	glm::vec3 lightsDirections[10];
+	int lightTypes[10];
+	int Alpha[10];
+	if (cameraCount > 0)
+	{
+		int modelCount = scene.GetModelCount();
+		const Camera& camera = scene.GetActiveCamera();
+		for (int i = 0; i < scene.GetLightCount(); i++)
+		{
+			Light currentLight = scene.GetLight(i);
+			if (currentLight.IsActive()) {
+				AmbientColor[i] = currentLight.GetAmbientColor();
+				DiffuseColor[i] = currentLight.GetDiffuseColor();
+				SpecularColor[i] = currentLight.GetSpecularColor();
+				lightsPositions[i] = currentLight.GetPosition();
+				lightTransformations[i] = currentLight.GetTransformation();
+				lightsDirections[i] = normalize(currentLight.GetDirection());
+				lightTypes[i] = currentLight.GetIfPoint();
+				Alpha[i] = currentLight.GetAlpha();
+			}
+			else {
+				LightsCount--;
 			}
 		}
-	}
-	if (scene.GetCameraCount()>0) {
-		Camera cam = scene.GetActiveCamera();
-		glm::mat4x4 CamTransformation = cam.GetViewTransformation();
-		glm::mat4x4 LookAt = cam.GetCameraLookAt();
-		glm::mat4x4 ViewPort = glm::scale(glm::vec3(half_width,half_height,1))*glm::translate(glm::vec3(1,1,1));
-		if (!cam.GetIfOrthographicProjection()) {
-			ViewPort = glm::scale(glm::vec3(half_width, half_height, 1)) * glm::translate(glm::vec3(1, 1, 0));
+		for (int currentModelIndex = 0; currentModelIndex < modelCount; currentModelIndex++)
+		{
+			MeshModel& currentModel = scene.GetModel(currentModelIndex);
+
+			// Activate the 'colorShader' program (vertex and fragment shaders)
+			colorShader.use();
+
+			//colorShader.setUniform("reflection", false);
+			colorShader.setUniform("AmbientColor", AmbientColor, LightsCount);
+			colorShader.setUniform("DiffuseColor", DiffuseColor, LightsCount);
+			colorShader.setUniform("SpecularColor", SpecularColor, LightsCount);
+			colorShader.setUniform("lightsPositions", lightsPositions, LightsCount);
+			colorShader.setUniform("lightTransformations", lightTransformations, LightsCount);
+			colorShader.setUniform("LightsTypes", lightTypes, LightsCount);
+			colorShader.setUniform("LightsDirections", lightsDirections, LightsCount);
+			colorShader.setUniform("LightsCount", LightsCount);
+			colorShader.setUniform("eye", normalize(camera.GetEye()));
+			colorShader.setUniform("material.diffuseColor", currentModel.GetDiffuseColor());
+			colorShader.setUniform("material.specularColor", currentModel.GetSpecularColor());
+			colorShader.setUniform("material.ambientColor", currentModel.GetAmbientColor());
+			colorShader.setUniform("Alpha", Alpha, scene.GetLightCount());
+			colorShader.setUniform("Method", currentModel.GetMethod());
+			colorShader.setUniform("model", currentModel.GetWorldTransformation() * currentModel.GetModelTransformation());
+			colorShader.setUniform("view", camera.GetViewTransformation());
+			colorShader.setUniform("projection", camera.GetProjectionTransformation());
+			colorShader.setUniform("material.textureMap", 0);
+			colorShader.setUniform("VT", currentModel.GetIfThereIsVT());
+
+			if (currentModel.GetMethod() == 0)
+			{
+				// Drag our model's faces (triangles) in line mode (wireframe)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glBindVertexArray(currentModel.GetVAO());
+				glDrawArrays(GL_TRIANGLES, 0, currentModel.GetModelVertices().size());
+				glBindVertexArray(0);
+			}
+			else if (currentModel.GetMethod() == 2|| currentModel.GetMethod() == 4) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glBindVertexArray(currentModel.GetVAO());
+				glDrawArrays(GL_TRIANGLES, 0, currentModel.GetModelVertices().size());
+				glBindVertexArray(0);
+			}
+			else if(currentModel.GetMethod() == 1){
+				texture1.bind(0);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glBindVertexArray(currentModel.GetVAO());
+				glDrawArrays(GL_TRIANGLES, 0, currentModel.GetModelVertices().size());
+				glBindVertexArray(0);
+				texture1.unbind(0);
+			}
+			else if (currentModel.GetMethod() == 3) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glBindVertexArray(currentModel.GetVAO());
+				glDrawArrays(GL_TRIANGLES, 0, currentModel.GetModelVertices().size());
+				glBindVertexArray(0);
+			}
+			//DrawLights(scene);
 		}
-		glm::mat4x4 ViewT = cam.GetViewTransformation();
-		glm::mat4x4 Projection = cam.GetProjectionTransformation();
-		glm::mat4x4 ModelTransformation = cam.GetTransformation();
-		glm::mat4x4 World = cam.GetWorldTransformation();
-		glm::mat4x4 Scale = cam.GetModelScale();
-		glm::mat4x4 t =  Projection  * LookAt * glm::inverse(ViewT) *ModelTransformation*Scale;
-		float height_ = 20.0f / 1.7777f;
-		//t= glm::ortho(-20.0f / 2, 20.0f / 2, - height_ / 2, height_ / 2, 0.1f, -1000.f)* glm::lookAt(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0))* glm::inverse(ViewT) * ModelTransformation;
-		DrawFaces2(t,ViewPort, cam, cam.GetIfOrthographicProjection(),scene,cam.GetEye());
-		if (cam.GetIfGrayScale()) {
-			ZBufferGrayscale();
-		}
-		if(cam.Get_ShowBoundingBox())DrawBoundingBox(cam);
-		if (cam.Get_ShowFaceNormals())DrawFaceNormals(ViewPort * t, cam);
-		if (cam.Get_ShowVertexNormals())DrawVertexNormals(ViewPort * t, cam);
-		if (scene.IsFogActivated())Fog(scene);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// TODO: Replace this code with real scene rendering code
+	//int half_width = viewport_width_ / 2;
+	//int half_height = viewport_height_ / 2;
+	//int thickness = 15;
+	//int r = 10, steps = 50;
+	//float angle = 2.f * PI / steps;
+	//float w =float( GetViewportWidth());
+	//float h = float(GetViewportHeight());
+	//Light l;
+	//ClearZbuffer(w,h);
+	//if (scene.GetLightCount() > 0) {
+	//	for (int j = 0; j < scene.GetLightCount(); j++) {
+	//		l = scene.GetLight(j);
+	//		if (l.IsActive()) {
+	//			if (l.GetIfPoint()) {
+	//				for (int i = 0; i <= steps; i++) {
+	//					glm::vec2 point1 = l.GetTransformation() * glm::vec4(l.GetPosition(), 1);
+	//					glm::ivec2 point2 = glm::ivec2(point1.x + r * sin(angle * i), point1.y + r * cos(angle * i));
+	//					DrawLine(point1, point2, l.GetAmbientColor());
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	//if (scene.GetCameraCount()>0) {
+	//	Camera cam = scene.GetActiveCamera();
+	//	glm::mat4x4 CamTransformation = cam.GetViewTransformation();
+	//	glm::mat4x4 LookAt = cam.GetCameraLookAt();
+	//	glm::mat4x4 ViewPort = glm::scale(glm::vec3(half_width,half_height,1))*glm::translate(glm::vec3(1,1,1));
+	//	if (!cam.GetIfOrthographicProjection()) {
+	//		ViewPort = glm::scale(glm::vec3(half_width, half_height, 1)) * glm::translate(glm::vec3(1, 1, 0));
+	//	}
+	//	glm::mat4x4 ViewT = cam.GetViewTransformation();
+	//	glm::mat4x4 Projection = cam.GetProjectionTransformation();
+	//	glm::mat4x4 ModelTransformation = cam.GetTransformation();
+	//	glm::mat4x4 World = cam.GetWorldTransformation();
+	//	glm::mat4x4 Scale = cam.GetModelScale();
+	//	glm::mat4x4 t =  Projection  * LookAt * glm::inverse(ViewT) *ModelTransformation*Scale;
+	//	float height_ = 20.0f / 1.7777f;
+	//	//t= glm::ortho(-20.0f / 2, 20.0f / 2, - height_ / 2, height_ / 2, 0.1f, -1000.f)* glm::lookAt(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0))* glm::inverse(ViewT) * ModelTransformation;
+	//	DrawFaces2(t,ViewPort, cam, cam.GetIfOrthographicProjection(),scene,cam.GetEye());
+	//	if (cam.GetIfGrayScale()) {
+	//		ZBufferGrayscale();
+	//	}
+	//	if(cam.Get_ShowBoundingBox())DrawBoundingBox(cam);
+	//	if (cam.Get_ShowFaceNormals())DrawFaceNormals(ViewPort * t, cam);
+	//	if (cam.Get_ShowVertexNormals())DrawVertexNormals(ViewPort * t, cam);
+	//	if (scene.IsFogActivated())Fog(scene);
+	//}
 
     ///////////////////////////////this loop test Bresenham's algorithm
 
@@ -894,7 +1010,7 @@ glm::vec3 Renderer::CalculateColor(int a,glm::vec3 normal,glm::vec3 LightPositio
 void Renderer::Fog(Scene& scene)
  {
 	 scene.SetFogBegin(minz );//check
-	 scene.SetFogEnd(maxz );
+	 scene.SetFogEnd(maxz);
 	 glm::vec3 color;
 	 for (int i = 0; i < viewport_height_; i++)
 		 for (int j = 0; j < viewport_width_; j++)
@@ -925,3 +1041,58 @@ void Renderer::Fog(Scene& scene)
 			 }
 		 }
  }
+
+void Renderer::LoadShaders()
+{
+	colorShader.loadShaders("vshader.glsl", "fshader.glsl");
+}
+
+void Renderer::LoadTextures()
+{
+	if (!texture1.loadTexture("C:\\Users\\elias\\OneDrive\\Documents\\GitHub\\computergraphics2021-eliass\\Data\\beetle.png", true))
+	{
+		texture1.loadTexture("C:\\Users\\elias\\OneDrive\\Documents\\GitHub\\computergraphics2021-eliass\\Data\\beetle.png", true);
+	}
+}
+
+void Renderer::DrawLights(Scene& scene)
+{
+	int half_width = viewport_width_ / 2;
+	int half_height = viewport_height_ / 2;
+	glm::vec3 color = glm::vec3(1, 1, 1);
+	glm::mat4x4 projectionTransformation = scene.GetActiveCamera().GetProjectionTransformation();
+	glm::mat4x4 ViewPort = glm::scale(glm::vec3(half_width, half_height, 1)) * glm::translate(glm::vec3(1, 1, 1));
+	for (int i = 0; i < scene.GetLightCount(); i++)
+	{
+		Light light = scene.GetLight(i);
+		glm::mat4x4 transformation = light.GetTransformation();
+		colorShader.use();
+
+		// Set the uniform variables
+		colorShader.setUniform("LightTransformation", transformation);
+		colorShader.setUniform("DrawLight", true);
+		if (light.GetPP() == 1)
+			colorShader.setUniform("lightType", 1);
+		else
+			colorShader.setUniform("lightType", 0);
+		colorShader.setUniform("view", scene.GetActiveCamera().GetViewTransformation());
+		colorShader.setUniform("projection", projectionTransformation);
+		colorShader.setUniform("material.textureMap", 0);
+		if (light.GetPP() ==1)
+		{
+			glm::vec3 position = light.GetPosition();
+			// Drag our model's faces (triangles) in fill mode
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindVertexArray(light.GetVao());
+			glDrawArrays(GL_POINTS, 0, 1);
+			glEnable(GL_PROGRAM_POINT_SIZE);
+			glBindVertexArray(0);
+		}
+		else
+		{
+			glBindVertexArray(light.GetVao());
+			glDrawArrays(GL_LINES, 0, 18);
+			glBindVertexArray(0);
+		}
+	}
+}

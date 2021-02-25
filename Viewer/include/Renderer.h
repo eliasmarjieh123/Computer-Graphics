@@ -2,10 +2,13 @@
 #include "Scene.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include "Texture2D.h"
+#include "ShaderProgram.h"
 
 class Renderer
 {
 public:
+	void Renderer::DrawLights(Scene& scene);
 	Renderer(int viewportWidth, int viewportHeight);
 	virtual ~Renderer();
 	void Render( Scene& scene);
@@ -29,6 +32,8 @@ public:
 	bool PointInTriangle(glm::vec3 p, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
 	glm::vec3 CalculateColor(int a,glm::vec3 normal, glm::vec3 LightPosition, glm::vec3 ModelAmbient, glm::vec3 ModelDiffuse, glm::vec3 ModelSpecular, glm::vec3 LightAmbient, glm::vec3 LightDiffuse, glm::vec3 LightSpecular,glm::vec3 v);
 	void Fog(Scene& scene);
+	void LoadShaders();
+	void LoadTextures();
 
 private:
 	void PutPixel(const int i, const int j, const glm::vec3& color);
@@ -36,7 +41,7 @@ private:
 	void CreateBuffers(int w, int h);
 	void CreateOpenGLBuffer();
 	void InitOpenGLRendering();
-
+	Texture2D texture1;
 	float* color_buffer_;
 	float* Z_buffer_;
 	int viewport_width_;
@@ -45,4 +50,6 @@ private:
 	GLuint gl_screen_vtc_;
 	float minz;
 	float maxz;
+	ShaderProgram lightShader;
+	ShaderProgram colorShader;
 };
