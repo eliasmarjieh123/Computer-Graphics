@@ -318,6 +318,7 @@ In the last picture beethoven and the cow are rendered with phong shading.
 #### Phase 7:
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/CowWearingBoots.JPG)
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/TeaPotBlackAndWithe.JPG)
+#### Here Beethoven and the cow are phong shaded and watermelons are toon shaded
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/ThoseAreMyWaterMelons.JPG)
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/CrateTextured.JPG)
 Those are models with Texture coordinates (The beetle with no texture coordinates).
