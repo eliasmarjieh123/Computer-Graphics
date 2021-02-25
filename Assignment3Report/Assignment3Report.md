@@ -331,7 +331,7 @@ Those are models with Texture coordinates (The beetle with no texture coordinate
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/ManyModels.JPG)
 #### Beethoven, crate and watermelon toon shaded:
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/ToonShading.JPG)
-
+![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/BeethovenToonShading.jpeg)
 ## Extras:
 ![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/WireFrame.JPG)
 
