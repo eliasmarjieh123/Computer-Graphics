@@ -13,10 +13,7 @@ Name: 'Elias Marjieh'
 
 URL: [https://www.inf.ethz.ch/personal/poranner/](https://www.inf.ethz.ch/personal/poranner/)
 
-Office Hours: By appointment.
 
-### Lectures:
-Sundays at 16:00pm - 20:00pm
 
 ## Course Description
 
