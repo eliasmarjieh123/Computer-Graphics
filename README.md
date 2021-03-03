@@ -135,9 +135,9 @@ Phase 1:
 ========
 
 ![Screenshot of the printed
-vertices](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/VerticesPrinting.JPG)
+vertices](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/VerticesPrinting.JPG)
 ![Screenshot of the printed
-faces](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/FacesPrinting.JPG)
+faces](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/FacesPrinting.JPG)
 
 Phase 2 explaination:
 =====================
@@ -151,20 +151,20 @@ multiplied each value with (350/max).
 Phase 3:
 ========
 
-![Cow](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/Cow.JPG)
-![Beethoven](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/Beethoven.JPG)
+![Cow](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/Cow.JPG)
+![Beethoven](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/Beethoven.JPG)
 
 phase 4:
 ========
 
 ![Translate
-GUI](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/TranslateGUI.JPG)
+GUI](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/TranslateGUI.JPG)
 
 ![Rotation
-GUI](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/RotationsGUI.JPG)
+GUI](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/RotationsGUI.JPG)
 
 ![Scaling
-GUI](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/ScaleGUI.JPG)
+GUI](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/ScaleGUI.JPG)
 
 How the transformations is done: I allocated 6 matrices, 3
 transformations and 2 modes (Local, World). Every time a transformation
@@ -181,12 +181,12 @@ Phase 5:
 Translate in local 175 towards X, 175 towards Y, then Rotation in world with 50 degree in Y axis:
 ![Translate in local 175 towards X, 175 towards Y, then Rotation in
 world with 50 degree in Y
-axis](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/TLRW175-50.JPG)
+axis](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/TLRW175-50.JPG)
 
 Translate in world 175 towards X, 175 towards Y, then Rotation in local with 50 degree in Y axis:
 ![Translate in world 175 towards X, 175 towards Y, then Rotation in
 local with 50 degree in Y
-axis](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SubAssignment2-Images/TWRL175-50.JPG)
+axis](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SubAssignment2-Images/TWRL175-50.JPG)
 
 ### Assignment1-Part3
 
@@ -195,35 +195,35 @@ axis](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/m
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 45
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY45.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY45.JPG)
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 90
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY90.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY90.JPG)
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 135
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY135.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY135.JPG)
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 180
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY180.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY180.JPG)
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 225
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY225.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY225.JPG)
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 270
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY270.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY270.JPG)
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 315
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY315.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY315.JPG)
 
 Transformation on the cow: Scale 0.8 - translate By X 700 - rotate By Y
 360
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY360.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase1/Scale0.8-translateByX700-rotateByY360.JPG)
 
 # Phase 2:
 ==========
@@ -233,85 +233,85 @@ T1=Scale 0.8 Translate By X 600 By Y 80 Rotate by X 30 Rotate By Y 60
 T2=Scale 0.7 Translate By X 300 By Y 90 Rotate By Z 45 Rotate By X 45
 
 T1 in Local T2 in World:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase2/T1LT2W.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase2/T1LT2W.JPG)
 
 T1 in World T2 in Local:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase2/T1WT2LWithNoExtra.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase2/T1WT2LWithNoExtra.JPG)
 
 T1 in World T2 in Local and translated in order to see the model:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase2/T1WT2LWith700Translate%20inLocal.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase2/T1WT2LWith700Translate%20inLocal.JPG)
 
 # Phase 3:
 ==========
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/LoadedModel.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithVertexNormals.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormals.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBox.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBoxGUI-Included.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBoxTranslatedGUI-Included.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBoxTranslatedInX.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/LoadedModel.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithVertexNormals.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormals.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBox.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBoxGUI-Included.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBoxTranslatedGUI-Included.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase3/ModelWithFaceAndVertexNormalsAndBoundingBoxTranslatedInX.JPG)
 
 # Phase 4:
 ==========
 
 Orthographic Mode:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Orthographic.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Orthographic.JPG)
 Orthographic mode Rotation By Y in 75:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Orthographic-RotatedByY75.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Orthographic-RotatedByY75.JPG)
 Orthographic mode Rotation By Y in 285:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Orthographic-RotatedByY285.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Orthographic-RotatedByY285.JPG)
 Perspective Mode:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Perspective.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Perspective.JPG)
 Perspective mode Rotation By Y in 75:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Perspective-RotatedByY75.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Perspective-RotatedByY75.JPG)
 Perspective mode Rotation By Y in 285:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Perspective-RotatedByY285.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase4/Cow-Perspective-RotatedByY285.JPG)
 
 # Phase 5:
 ==========
 
 fovy=50:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-FOV50.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-FOV50.JPG)
 
 fovy=70:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-FOV70.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-FOV70.JPG)
 
 fovy=100:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-FOV100.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-FOV100.JPG)
 
 translate by Z 4.5:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-CamtranslateByZ4.5.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-CamtranslateByZ4.5.JPG)
 
 translate by Z -4.5:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-CamtranslateByZ-4.5.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase5/Cow-CamtranslateByZ-4.5.JPG)
 
 # Phase 6:
 ==========
 
 Rotate by Y 78 in Local:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase6/CowRotateLocal78.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase6/CowRotateLocal78.JPG)
 
 Rotate by Y 96 in World:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase6/CowRotateWorld96.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase6/CowRotateWorld96.JPG)
 
 # Phase 7:
 ==========
 
 LookAt at(5,5,5):
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase7/Cow-LookAt-(5%2C5%2C5).JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase7/Cow-LookAt-(5%2C5%2C5).JPG)
 
 # Phase 9:
 ==========
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase9/WindowResize1.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase9/WindowResize2.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase9/WindowResize1.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase9/WindowResize2.JPG)
 
 # Phase 10:
 ===========
 
 Maximum GUI:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase10/GUI.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/SuibAssignment3/Assignment1-SubAssignment3-Phase10/GUI.JPG)
 
 
 # Assignment 2:
@@ -369,7 +369,7 @@ them.
 Model with random color for each triangle:
 ==========================================
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part1/color-buufer.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part1/color-buufer.JPG)
 
 ## Phase 2:
 --------
@@ -377,17 +377,17 @@ Model with random color for each triangle:
 Showing the difference betweeen color-buffer and z-buffer:
 ==========================================================
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part1/color-buffer-z-buffer.jpg)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part1/color-buffer-z-buffer.jpg)
 
 Gray Scale in orthographic:
 ===========================
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part1/Z-Buffer-GrayScale.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part1/Z-Buffer-GrayScale.JPG)
 
 Gray Scale in Perspective:
 ==========================
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part1/Z-Buffer-GrayScale-Perspective.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part1/Z-Buffer-GrayScale-Perspective.JPG)
 
 
 
@@ -414,7 +414,7 @@ Colors:
 Light Ambient Color= (224,42,42) Light Diffuse Color= (255,0,0) Light
 SpecularColor= (214,44,44) Model Ambient Color= (70,162,165) Model
 Diffuse Color= (55,169,20) Model Specular Color= (35,149,156)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-FlatShading-2PointLights.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Cow-FlatShading-2PointLights.JPG)
 
 Cow model with 1 point light source and 1 parallel light source in Flat shading and the point light is translated:
 =========================================================================
@@ -425,7 +425,7 @@ Colors:
 Light Ambient Color= (224,42,42) Light Diffuse Color= (255,0,0) Light
 SpecularColor= (214,44,44) Model Ambient Color= (70,162,165) Model
 Diffuse Color= (55,169,20) Model Specular Color= (35,149,156)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-FlatShading-1PointLights-1ParallelLight.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Cow-FlatShading-1PointLights-1ParallelLight.JPG)
 
 Cow Model with 2 point light sources in Gouraud shading and both lights are translated:
 ===========================================================
@@ -436,7 +436,7 @@ Colors:
 Light Ambient Color= (224,42,42) Light Diffuse Color= (255,0,0) Light
 SpecularColor= (214,44,44) Model Ambient Color= (70,162,165) Model
 Diffuse Color= (55,169,20) Model Specular Color= (35,149,156)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-GouraudShading-2PointLights.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Cow-GouraudShading-2PointLights.JPG)
 
 Cow model with 1 point light source and 1 parallel light source in Gouraud shading and the point light is translated:
 =============================================================================
@@ -447,12 +447,12 @@ Colors:
 Light Ambient Color= (224,42,42) Light Diffuse Color= (255,0,0) Light
 SpecularColor= (214,44,44) Model Ambient Color= (70,162,165) Model
 Diffuse Color= (55,169,20) Model Specular Color= (35,149,156)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-GouraudShading-1PointLights-1ParallelLight.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Cow-GouraudShading-1PointLights-1ParallelLight.JPG)
 
 Cow modelk with 3 parallel light sources in different colors and different directions:
 =======================================================
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-3ParallelLights.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Cow-3ParallelLights.JPG)
 
 Showing the difference between Gouraud shading and Phong shading:
 ==============================================
@@ -460,22 +460,22 @@ Showing the difference between Gouraud shading and Phong shading:
 Gouraud Shading:
 ------------------
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-GouraudShading-PointLights.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Cow-GouraudShading-PointLights.JPG)
 Phong Shading:
 --------------------
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Cow-PhongShading-PointLights.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Cow-PhongShading-PointLights.JPG)
 
 Linear fog on the teapot:
 ---------------------------
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/LinearFog.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/LinearFog.JPG)
 
 Fog with density 40:
 ---------------------
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Fog-Density40.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Fog-Density40.JPG)
 
 Fog with density 62:
 -----------------------
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Fog-Density62.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Fog-Density62.JPG)
 
 Extra Photos:
 ===========
@@ -483,15 +483,15 @@ Extra Photos:
 Flat shading with 2 light sources:
 --------------------------------------
 
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/GUI-Cow.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/GUI-Cow.JPG)
 
 Phong shading with 2 light sources:
 ------------------------------------------
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/GUI-Cow-Phong.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/GUI-Cow-Phong.JPG)
 
 Beethoven with 4 light sources with Phong shading:
 --------------------------------------------------------
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment2/Part2/Beethoven.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment2/Part2/Beethoven.JPG)
 
 
 
@@ -553,12 +553,12 @@ glGenVertexArrays(1, &gl_screen_vtc_); Arrays (Buffers) that describes the objec
 
 The function creates to triangles that contains the content that will be stretched over the screen, basically it replaces our buffers from the previous assignments and GL will make sure everything is rendered correctly and the Z-buffer algorithm is activated.
 #### Phase 2:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/MeshModelConstructor.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/MeshModelConstructor.JPG)
 The MeshModel constructor now creates a list of vertexes that contains for each vertex its position, normal and texture coordinates (if there is any texture coordinates or normals for the model).
 It also prepares the GL buffers, VAO, VBO, vertices and all the data that is needed by the GPU in order to render the models correctly on the screen.
 
 #### Phase 3:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/vshader.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/vshader.JPG)
 
 # vshader code:
 #version 330 core
@@ -649,7 +649,7 @@ void main()
 	vec3 I,FinalAmbient,FinalDiffuse,FinalSpecular;
 	color=vec4(material.ambientColor,1.f);
 }
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/OneColor.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/OneColor.JPG)
 
 #### All fragment shader code:
 
@@ -851,28 +851,28 @@ Then we specefy what method we want and according to the method we give the inst
 
 #### Phase 6:
 Demonstrating Phong shading
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/BeetlePhong.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/ManyModels.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/BeetlePhong.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/ManyModels.JPG)
 In the last picture beethoven and the cow are rendered with phong shading.
 
 #### Phase 7:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/CowWearingBoots.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/TeaPotBlackAndWithe.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/CowWearingBoots.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/TeaPotBlackAndWithe.JPG)
 #### Here Beethoven and the cow are phong shaded and watermelons are toon shaded
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/ThoseAreMyWaterMelons.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/CrateTextured.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/ThoseAreMyWaterMelons.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/CrateTextured.JPG)
 Those are models with Texture coordinates (The beetle with no texture coordinates).
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/Beetle.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/Beetle.JPG)
 
 #### Phase 8:
 ##### I decided to implement toon shading:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/CrateInToonShading.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/CrateInToonShading.JPG)
 #### Here we can see that part of the models are toon shaded
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/ManyModels.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/ManyModels.JPG)
 #### Beethoven, crate and watermelon toon shaded:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/ToonShading.JPG)
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/BeethovenToonShading.jpeg)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/ToonShading.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/BeethovenToonShading.jpeg)
 ## Extras:
-![](https://github.com/HaifaGraphicsCourses/computergraphics2021-eliass/blob/master/Assignment3Report/images/WireFrame.JPG)
+![](https://github.com/eliasmarjieh123/Computer-Graphics/blob/master/Assignment3Report/images/WireFrame.JPG)
 
 ### Although sometimes it was hard to understand the background calculations and implementations, it was so fun to do this cousre, thank you.
